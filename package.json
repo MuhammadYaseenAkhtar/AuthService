@@ -1,0 +1,27 @@
+{
+  "name": "authservice",
+  "version": "1.0.0",
+  "description": "Full Stack Engineering course. Instructor Rakesh Kohali. Microservices. This is auth service",
+  "keywords": [
+    "backend",
+    "node",
+    "express",
+    "microservices",
+    "authentication"
+  ],
+  "homepage": "https://github.com/MuhammadYaseenAkhtar/AuthService#readme",
+  "bugs": {
+    "url": "https://github.com/MuhammadYaseenAkhtar/AuthService/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MuhammadYaseenAkhtar/AuthService.git"
+  },
+  "license": "ISC",
+  "author": "yaseen",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
