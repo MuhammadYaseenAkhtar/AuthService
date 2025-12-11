@@ -1,42 +1,49 @@
 {
-  "name": "authservice",
-  "version": "1.0.0",
-  "description": "Full Stack Engineering course. Instructor Rakesh Kohali. Microservices. This is auth service",
-  "keywords": [
-    "backend",
-    "node",
-    "express",
-    "microservices",
-    "authentication"
-  ],
-  "homepage": "https://github.com/MuhammadYaseenAkhtar/AuthService#readme",
-  "bugs": {
-    "url": "https://github.com/MuhammadYaseenAkhtar/AuthService/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/MuhammadYaseenAkhtar/AuthService.git"
-  },
-  "license": "ISC",
-  "author": "yaseen",
-  "type": "module",
-  "main": "index.js",
-  "scripts": {
-    "dev": "node dist/server.js",
-    "format:check": "prettier . --check ",
-    "format:fix": "prettier . --write",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "husky"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.39.1",
-    "@types/node": "^24.10.2",
-    "eslint": "^9.39.1",
-    "husky": "^9.1.7",
-    "prettier": "3.7.4",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.49.0"
-  }
+    "name": "authservice",
+    "version": "1.0.0",
+    "description": "Full Stack Engineering course. Instructor Rakesh Kohali. Microservices. This is auth service",
+    "keywords": [
+        "backend",
+        "node",
+        "express",
+        "microservices",
+        "authentication"
+    ],
+    "homepage": "https://github.com/MuhammadYaseenAkhtar/AuthService#readme",
+    "bugs": {
+        "url": "https://github.com/MuhammadYaseenAkhtar/AuthService/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/MuhammadYaseenAkhtar/AuthService.git"
+    },
+    "license": "ISC",
+    "author": "yaseen",
+    "type": "module",
+    "main": "index.js",
+    "scripts": {
+        "dev": "node dist/server.js",
+        "format:check": "prettier . --check ",
+        "format:fix": "prettier . --write",
+        "lint:check": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "prepare": "husky"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.39.1",
+        "@types/node": "^24.10.2",
+        "eslint": "^9.39.1",
+        "husky": "^9.1.7",
+        "lint-staged": "^16.2.7",
+        "prettier": "3.7.4",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.49.0"
+    },
+    "lint-staged": {
+        "*.ts": [
+            "npm run format:fix",
+            "npm run lint:fix"
+        ]
+    }
 }
