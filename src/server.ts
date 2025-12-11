@@ -1,10 +1,3 @@
-function welcome(name: string, age: number) {
-    const user = {
-        name: "yaseen",
-    };
+import { Config } from "./config/index.js";
 
-    console.log(user.name);
-    console.log(`Welcome ${name}, Your age is ${age} `);
-}
-
-welcome("hassan", 29);
+console.log(Config.PORT);
