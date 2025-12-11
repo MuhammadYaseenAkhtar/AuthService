@@ -1,5 +1,5 @@
-import app from "./app.js";
-import { Config } from "./config/index.js";
+import app from "./app.ts";
+import { Config } from "./config/index.ts";
 
 const startServer = () => {
     try {

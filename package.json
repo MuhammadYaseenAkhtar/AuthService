@@ -22,7 +22,7 @@
     "type": "module",
     "main": "index.js",
     "scripts": {
-        "dev": "node dist/server.js",
+        "dev": "nodemon src/server.ts",
         "format:check": "prettier . --check ",
         "format:fix": "prettier . --write",
         "lint:check": "eslint .",
@@ -37,7 +37,9 @@
         "eslint": "^9.39.1",
         "husky": "^9.1.7",
         "lint-staged": "^16.2.7",
+        "nodemon": "^3.1.11",
         "prettier": "3.7.4",
+        "ts-node": "^10.9.2",
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.49.0"
     },
