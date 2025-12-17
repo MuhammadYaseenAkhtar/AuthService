@@ -2,7 +2,7 @@ import { add } from "./src/utils/calculate.ts";
 import request from "supertest";
 import app from "./src/app.ts";
 describe("Testing jest ", () => {
-    it("should return correct addition.", () => {
+    it("should return correct addition", () => {
         expect(add(1, 2)).toBe(3);
     });
 
