@@ -4,14 +4,12 @@ import express, {
     type Response,
 } from "express";
 import logger from "./config/logger.ts";
-import createHttpError, { HttpError } from "http-errors";
+import { HttpError } from "http-errors";
 
 const app = express();
 
 app.get("/", (_, res) => {
-    const err = createHttpError(401, "Error occured");
-    throw err;
-    res.send("Welcome to Express app");
+    res.status(200).send("Welcome to Express app.");
 });
 
 //global error handler
