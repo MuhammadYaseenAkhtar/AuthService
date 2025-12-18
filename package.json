@@ -22,7 +22,7 @@
     "type": "module",
     "main": "index.js",
     "scripts": {
-        "dev": "nodemon src/server.ts",
+        "dev": "nodemon --legacy-watch src/server.ts",
         "format:check": "prettier . --check ",
         "format:fix": "prettier . --write",
         "lint:check": "eslint .",
