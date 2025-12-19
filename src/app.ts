@@ -8,8 +8,12 @@ import { HttpError } from "http-errors";
 
 const app = express();
 
-app.get("/", (_, res) => {
+app.get("/", (_req, res) => {
     res.status(200).send("Welcome to Express app.");
+});
+
+app.post("/auth/register", (_req, res) => {
+    res.status(201).json({});
 });
 
 //global error handler
