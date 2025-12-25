@@ -28,7 +28,7 @@
         // Stricter Typechecking Options
         "noUncheckedIndexedAccess": true,
         "exactOptionalPropertyTypes": true,
-
+        // "strictPropertyInitialization": false,
         // Style Options
         // "noImplicitReturns": true,
         "noImplicitOverride": true,
@@ -44,8 +44,10 @@
         "isolatedModules": true,
         "noUncheckedSideEffectImports": true,
         "moduleDetection": "force",
-        "skipLibCheck": true
-    },
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+        "skipLibCheck": true,
+
+        //For typeORM Decorators
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true
+    }
 }
