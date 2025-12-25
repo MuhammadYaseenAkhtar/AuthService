@@ -22,7 +22,7 @@
     "type": "module",
     "main": "index.js",
     "scripts": {
-        "dev": "cross-env NODE_ENV=dev nodemon --legacy-watch src/server.ts",
+        "dev": "cross-env NODE_ENV=dev nodemon --legacy-watch --exec node --loader ts-node/esm src/server.ts",
         "format:check": "prettier . --check ",
         "format:fix": "prettier . --write",
         "lint:check": "eslint .",
