@@ -1,16 +1,7 @@
-import type { Request, Response } from "express";
+import type { Response } from "express";
 import { AppDataSource } from "../config/data-source.ts";
+import type { RegisterUserRequest } from "../types/index.ts";
 
-interface UserData {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-}
-
-interface RegisterUserRequest extends Request {
-    body: UserData;
-}
 export class AuthController {
     async create(req: RegisterUserRequest, res: Response) {
         try {
