@@ -71,7 +71,7 @@ describe("POST /auth/register", () => {
 
             //Arrange
             const user = {
-                firstName: "yaseen",
+                firstName: "HASSAN",
                 lastName: "akhtar",
                 email: "yaseen@gmail.com",
                 password: "secret",
@@ -89,6 +89,35 @@ describe("POST /auth/register", () => {
             expect(users[0].firstName).toBe(user.firstName);
             expect(users[0].lastName).toBe(user.lastName);
             expect(users[0].email).toBe(user.email);
+        });
+
+        it("should return the ID of newly created User", async () => {
+            //AAA rule => Arrange, Act, Assert
+
+            //Arrange
+            const user = {
+                firstName: "HASSAN",
+                lastName: "akhtar",
+                email: "yaseen@gmail.com",
+                password: "secret",
+            };
+
+            //Act
+
+            const response = await request(app)
+                .post("/auth/register")
+                .send(user);
+
+            //Assert
+            const userRepository = connection.getRepository(User);
+            const users = await userRepository.find();
+
+            expect(response.status).toBe(201);
+            expect(response.body).toHaveProperty("id");
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            expect(typeof response.body.id).toBe("number");
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            expect(users[0].id).toBe(response.body.id);
         });
     });
 

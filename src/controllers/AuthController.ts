@@ -19,6 +19,7 @@ export class AuthController {
 
             //return response.
             return res.status(201).json({
+                id: response.id,
                 message: `User ${response.firstName} with id ${response.id} has been registered successfully.`,
             });
         } catch (error) {
