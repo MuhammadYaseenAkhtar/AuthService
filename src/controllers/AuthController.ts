@@ -10,7 +10,7 @@ export class AuthController {
             const { firstName, lastName, email, password } = req.body;
 
             //Call userService's create method
-            await this.userService.create({
+            const response = await this.userService.create({
                 firstName,
                 lastName,
                 email,
@@ -18,7 +18,9 @@ export class AuthController {
             });
 
             //return response.
-            return res.status(201).json({ message: "User created" });
+            return res.status(201).json({
+                message: `User ${response.firstName} with id ${response.id} has been registered successfully.`,
+            });
         } catch (error) {
             console.log(error);
         }
