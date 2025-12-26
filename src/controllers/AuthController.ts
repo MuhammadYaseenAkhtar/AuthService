@@ -3,10 +3,7 @@ import type { RegisterUserRequest } from "../types/index.ts";
 import type { UserService } from "../services/UserService.ts";
 
 export class AuthController {
-    userService: UserService;
-    constructor(userService: UserService) {
-        this.userService = userService;
-    }
+    constructor(private userService: UserService) {}
     async create(req: RegisterUserRequest, res: Response) {
         try {
             //get data from body
