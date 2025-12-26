@@ -8,5 +8,7 @@ const router = express.Router();
 const userRepository = AppDataSource.getRepository(User);
 const userService = new UserService(userRepository);
 const authController = new AuthController(userService);
-router.post("/register", (req, res) => authController.create(req, res));
+router.post("/register", (req, res, next) =>
+    authController.create(req, res, next),
+);
 export default router;
