@@ -1,15 +1,26 @@
 import type { Response } from "express";
-import { AppDataSource } from "../config/data-source.ts";
 import type { RegisterUserRequest } from "../types/index.ts";
+import type { UserService } from "../services/UserService.ts";
 
 export class AuthController {
+    userService: UserService;
+    constructor(userService: UserService) {
+        this.userService = userService;
+    }
     async create(req: RegisterUserRequest, res: Response) {
         try {
+            //get data from body
             const { firstName, lastName, email, password } = req.body;
 
-            const userRepository = AppDataSource.getRepository("User");
-            await userRepository.save({ firstName, lastName, email, password });
+            //Call userService's create method
+            await this.userService.create({
+                firstName,
+                lastName,
+                email,
+                password,
+            });
 
+            //return response.
             return res.status(201).json({ message: "User created" });
         } catch (error) {
             console.log(error);
