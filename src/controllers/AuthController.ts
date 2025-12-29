@@ -4,7 +4,11 @@ import type { UserService } from "../services/UserService.ts";
 
 export class AuthController {
     constructor(private userService: UserService) {}
-    async create(req: RegisterUserRequest, res: Response, next: NextFunction) {
+    async register(
+        req: RegisterUserRequest,
+        res: Response,
+        next: NextFunction,
+    ) {
         try {
             //get data from body
             const { firstName, lastName, email, password } = req.body;
@@ -24,6 +28,7 @@ export class AuthController {
             });
         } catch (error) {
             next(error);
+            return;
         }
     }
 }
