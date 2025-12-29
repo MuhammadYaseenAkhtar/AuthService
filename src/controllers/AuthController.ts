@@ -1,9 +1,13 @@
 import type { NextFunction, Response } from "express";
 import type { RegisterUserRequest } from "../types/index.ts";
 import type { UserService } from "../services/UserService.ts";
+import type { Logger } from "winston";
 
 export class AuthController {
-    constructor(private userService: UserService) {}
+    constructor(
+        private userService: UserService,
+        private logger: Logger,
+    ) {}
     async register(
         req: RegisterUserRequest,
         res: Response,
@@ -14,17 +18,22 @@ export class AuthController {
             const { firstName, lastName, email, password } = req.body;
 
             //Call userService's create method
-            const response = await this.userService.create({
+            const user = await this.userService.create({
                 firstName,
                 lastName,
                 email,
                 password,
             });
 
+            //logging
+            this.logger.info(
+                `User ${user.firstName} has been registered successfully.`,
+                { id: user.id },
+            );
             //return response.
             return res.status(201).json({
-                id: response.id,
-                message: `User ${response.firstName} with id ${response.id} has been registered successfully.`,
+                id: user.id,
+                message: `User ${user.firstName} with id ${user.id} has been registered successfully.`,
             });
         } catch (error) {
             next(error);
