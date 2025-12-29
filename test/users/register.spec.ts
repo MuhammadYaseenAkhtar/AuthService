@@ -2,7 +2,7 @@ import { DataSource } from "typeorm";
 import app from "../../src/app.ts";
 import request from "supertest";
 import { AppDataSource } from "../../src/config/data-source.ts";
-import { truncateTables } from "../utils/index.ts";
+// import { truncateTables } from "../utils/index.ts";
 import { User } from "../../src/entity/User.ts";
 
 describe("POST /auth/register", () => {
@@ -14,7 +14,8 @@ describe("POST /auth/register", () => {
 
     beforeEach(async () => {
         //Database truncate
-        await truncateTables(connection);
+        await connection.dropDatabase();
+        await connection.synchronize();
     });
 
     afterAll(async () => {
@@ -118,6 +119,29 @@ describe("POST /auth/register", () => {
             expect(typeof response.body.id).toBe("number");
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             expect(users[0].id).toBe(response.body.id);
+        });
+
+        it("should assign a cutomer role", async () => {
+            //AAA rule => Arrange, Act, Assert
+
+            //Arrange
+            const user = {
+                firstName: "HASSAN",
+                lastName: "akhtar",
+                email: "yaseen@gmail.com",
+                password: "secret",
+            };
+
+            //Act
+
+            await request(app).post("/auth/register").send(user);
+
+            //Assert
+            const userRepository = connection.getRepository(User);
+            const users = await userRepository.find();
+
+            expect(users[0]).toHaveProperty("role");
+            expect(users[0].role).toBe("customer");
         });
     });
 
