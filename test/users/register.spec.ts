@@ -4,6 +4,7 @@ import request from "supertest";
 import { AppDataSource } from "../../src/config/data-source.ts";
 // import { truncateTables } from "../utils/index.ts";
 import { User } from "../../src/entity/User.ts";
+import { Roles } from "../../src/constants/index.ts";
 
 describe("POST /auth/register", () => {
     let connection: DataSource;
@@ -141,7 +142,7 @@ describe("POST /auth/register", () => {
             const users = await userRepository.find();
 
             expect(users[0]).toHaveProperty("role");
-            expect(users[0].role).toBe("customer");
+            expect(users[0].role).toBe(Roles.CUSTOMER);
         });
     });
 
