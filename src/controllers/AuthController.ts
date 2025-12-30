@@ -3,6 +3,7 @@ import type { RegisterUserRequest } from "../types/index.ts";
 import type { UserService } from "../services/UserService.ts";
 import type { Logger } from "winston";
 import createHttpError from "http-errors";
+import { validationResult } from "express-validator";
 export class AuthController {
     constructor(
         private userService: UserService,
@@ -14,13 +15,15 @@ export class AuthController {
         next: NextFunction,
     ) {
         try {
+            //validate request using express-validator.
+            const result = validationResult(req);
+            if (!result.isEmpty()) {
+                return res.status(400).json({
+                    errors: result.array(),
+                });
+            }
             //get data from body
             const { firstName, lastName, email, password } = req.body;
-
-            //check if email field is empty
-            if (!email) {
-                throw createHttpError(400, "Email is required!");
-            }
 
             //check if email is already exist in Db
             const emailExists = await this.userService.checkEmail(email);

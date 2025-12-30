@@ -206,6 +206,10 @@ describe("POST /auth/register", () => {
                 password: "secretPass",
             };
 
+            //getting user repository.
+            const userRepository = connection.getRepository(User);
+            const users = await userRepository.find();
+
             //Act
             const response = await request(app)
                 .post("/auth/register")
@@ -213,6 +217,7 @@ describe("POST /auth/register", () => {
 
             //Assert
             expect(response.statusCode).toBe(400);
+            expect(users).toHaveLength(0);
         });
     });
 });
