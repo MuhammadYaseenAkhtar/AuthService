@@ -168,6 +168,32 @@ describe("POST /auth/register", () => {
             expect(users[0].password).toHaveLength(60);
             expect(users[0].password).toMatch(/^\$2b\$\d+\$/);
         });
+
+        it("should return 400 status code if email is already exists", async () => {
+            //AAA rule => Arrange, Act, Assert
+
+            //Arrange
+            const user = {
+                firstName: "Hasssan",
+                lastName: "akhtar",
+                email: "hassan@gmail.com",
+                password: "secretPass",
+            };
+
+            const userRepository = connection.getRepository(User);
+            await userRepository.save({ ...user, role: Roles.CUSTOMER });
+            const users = await userRepository.find();
+
+            //Act
+
+            const response = await request(app)
+                .post("/auth/register")
+                .send(user);
+
+            //Assert
+            expect(response.statusCode).toBe(400);
+            expect(users).toHaveLength(1);
+        });
     });
 
     // describe("Fields are missing", () => {

@@ -29,4 +29,18 @@ export class UserService {
             throw error;
         }
     }
+
+    async checkEmail(email: string) {
+        try {
+            const user = await this.userRepository.findOneBy({ email: email });
+
+            return user;
+        } catch {
+            const error = createHttpError(
+                500,
+                "Something went wrong while checking the email!",
+            );
+            throw error;
+        }
+    }
 }
