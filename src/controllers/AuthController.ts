@@ -17,6 +17,11 @@ export class AuthController {
             //get data from body
             const { firstName, lastName, email, password } = req.body;
 
+            //check if email field is empty
+            if (!email) {
+                throw createHttpError(400, "Email is required!");
+            }
+
             //check if email is already exist in Db
             const emailExists = await this.userService.checkEmail(email);
             if (emailExists) {

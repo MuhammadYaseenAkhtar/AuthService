@@ -196,7 +196,23 @@ describe("POST /auth/register", () => {
         });
     });
 
-    // describe("Fields are missing", () => {
-    //     it("should return 400 status", async () => {});
-    // });
+    describe("Fields are missing", () => {
+        it("should return 400 status if email field is missing", async () => {
+            //Arrange
+            const user = {
+                firstName: "Yasin",
+                lastName: "Akhtar",
+                email: "",
+                password: "secretPass",
+            };
+
+            //Act
+            const response = await request(app)
+                .post("/auth/register")
+                .send(user);
+
+            //Assert
+            expect(response.statusCode).toBe(400);
+        });
+    });
 });
