@@ -2,7 +2,6 @@ import type { NextFunction, Response } from "express";
 import type { RegisterUserRequest } from "../types/index.ts";
 import type { UserService } from "../services/UserService.ts";
 import type { Logger } from "winston";
-
 export class AuthController {
     constructor(
         private userService: UserService,
