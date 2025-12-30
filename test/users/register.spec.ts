@@ -219,5 +219,28 @@ describe("POST /auth/register", () => {
             expect(response.statusCode).toBe(400);
             expect(users).toHaveLength(0);
         });
+
+        it("should return 400 status if email format is invalid", async () => {
+            //Arrange
+            const user = {
+                firstName: "Yasin",
+                lastName: "Akhtar",
+                email: "muhammadgmail.com",
+                password: "secretPass",
+            };
+
+            //getting user repository.
+            const userRepository = connection.getRepository(User);
+            const users = await userRepository.find();
+
+            //Act
+            const response = await request(app)
+                .post("/auth/register")
+                .send(user);
+
+            //Assert
+            expect(response.statusCode).toBe(400);
+            expect(users).toHaveLength(0);
+        });
     });
 });
