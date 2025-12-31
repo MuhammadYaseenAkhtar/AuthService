@@ -48,6 +48,25 @@ export class AuthController {
                 `User ${user.firstName} has been registered successfully.`,
                 { id: user.id },
             );
+
+            //access & refresh token
+            const accessToken = "aldsjfaldjf";
+            const refreshToken = "aldfjaldkjfaljdf";
+
+            res.cookie("accessToken", accessToken, {
+                httpOnly: true,
+                sameSite: "strict",
+                domain: "localhost",
+                maxAge: 1000 * 60 * 60, //1h
+            });
+
+            res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                sameSite: "strict",
+                domain: "localhost",
+                maxAge: 1000 * 60 * 60 * 24 * 30, //1M
+            });
+
             //return response.
             return res.status(201).json({
                 id: user.id,

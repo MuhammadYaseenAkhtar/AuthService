@@ -194,6 +194,62 @@ describe("POST /auth/register", () => {
             expect(response.statusCode).toBe(400);
             expect(users).toHaveLength(1);
         });
+
+        it("should return the access and refresh token inside a cookie", async () => {
+            //AAA rule => Arrange, Act, Assert
+
+            //Arrange
+            const user = {
+                firstName: "Hasssan",
+                lastName: "akhtar",
+                email: "hassan@gmail.com",
+                password: "secretPass",
+            };
+
+            //Act
+
+            const response = await request(app)
+                .post("/auth/register")
+                .send(user);
+
+            // interface Headers {
+            //     ['set-cookie']: string[];
+            // }
+
+            //             //Assert
+            //             const cookies = (response.headers as Headers)['set-cookie'] || [];
+
+            //             cookies.foreach((cookie) => {
+            //                 if(cookie.startsWith('accessToken=')){
+
+            //                 }
+            //             })
+
+            //         });
+
+            // Check that Set-Cookie header exists
+            const cookies: string[] | undefined = response.headers[
+                "set-cookie"
+            ] as unknown as string[] | undefined;
+            expect(cookies).toBeDefined();
+            expect(cookies!.length).toBeGreaterThanOrEqual(2);
+
+            // Check access token cookie
+            const accessTokenCookie = cookies!.find((cookie) =>
+                cookie.startsWith("accessToken="),
+            );
+            expect(accessTokenCookie).toBeDefined();
+            expect(accessTokenCookie).toMatch(/HttpOnly/);
+            // expect(accessTokenCookie).toMatch(/Secure/); // Ensure HTTPS in production
+
+            // Check refresh token cookie
+            const refreshTokenCookie = cookies!.find((cookie) =>
+                cookie.startsWith("refreshToken="),
+            );
+            expect(refreshTokenCookie).toBeDefined();
+            expect(refreshTokenCookie).toMatch(/HttpOnly/);
+            // expect(refreshTokenCookie).toMatch(/Secure/); // Ensure HTTPS in production
+        });
     });
 
     describe("Fields are missing", () => {
