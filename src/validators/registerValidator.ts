@@ -29,6 +29,7 @@ export default checkSchema({
     email: {
         notEmpty: {
             errorMessage: "Email is required",
+            bail: true,
         },
         trim: true,
         isEmail: {
