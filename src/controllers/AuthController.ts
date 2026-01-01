@@ -1,9 +1,13 @@
+import fs from "fs";
+import path from "path";
 import type { NextFunction, Response } from "express";
+import jwt, { type JwtPayload } from "jsonwebtoken";
 import type { RegisterUserRequest } from "../types/index.ts";
 import type { UserService } from "../services/UserService.ts";
 import type { Logger } from "winston";
 import createHttpError from "http-errors";
 import { validationResult } from "express-validator";
+import { Config } from "../config/index.ts";
 export class AuthController {
     constructor(
         private userService: UserService,
@@ -49,10 +53,37 @@ export class AuthController {
                 { id: user.id },
             );
 
-            //access & refresh token
-            const accessToken = "aldsjfaldjf";
-            const refreshToken = "aldfjaldkjfaljdf";
+            //*** access & refresh token generation ***
 
+            //payload
+            const payload: JwtPayload = {
+                sub: String(user.id),
+                role: user.role,
+            };
+
+            //private key for accessToken
+            let privateKey: string;
+            try {
+                privateKey = fs.readFileSync(
+                    path.resolve(process.cwd(), "certs/private.pem"),
+                    "utf8",
+                );
+            } catch (err) {
+                throw createHttpError(
+                    500,
+                    "Private key is not configured correctly",
+                    { cause: err },
+                );
+            }
+
+            //Sign Access Token
+            const accessToken = jwt.sign(payload, privateKey, {
+                algorithm: "RS256",
+                issuer: "Auth-Service",
+                expiresIn: "1h",
+            });
+
+            // Setting access token in cookies
             res.cookie("accessToken", accessToken, {
                 httpOnly: true,
                 sameSite: "strict",
@@ -60,6 +91,18 @@ export class AuthController {
                 maxAge: 1000 * 60 * 60, //1h
             });
 
+            //Sign Refresh Token
+            const refreshToken = jwt.sign(
+                payload,
+                Config.REFRESH_TOKEN_SECRET,
+                {
+                    algorithm: "HS256",
+                    expiresIn: "30D",
+                    issuer: "Auth-Service",
+                },
+            );
+
+            // Setting refresh token in cookies
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
                 sameSite: "strict",

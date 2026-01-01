@@ -5,6 +5,7 @@ import { AppDataSource } from "../../src/config/data-source.ts";
 // import { truncateTables } from "../utils/index.ts";
 import { User } from "../../src/entity/User.ts";
 import { Roles } from "../../src/constants/index.ts";
+import { isJwt } from "../utils/index.ts";
 
 describe("POST /auth/register", () => {
     let connection: DataSource;
@@ -241,6 +242,7 @@ describe("POST /auth/register", () => {
             expect(accessTokenCookie).toBeDefined();
             expect(accessTokenCookie).toMatch(/HttpOnly/);
             // expect(accessTokenCookie).toMatch(/Secure/); // Ensure HTTPS in production
+            expect(isJwt(accessTokenCookie)).toBeTruthy(); // Check if it's a valid JWT)
 
             // Check refresh token cookie
             const refreshTokenCookie = cookies!.find((cookie) =>
@@ -249,6 +251,7 @@ describe("POST /auth/register", () => {
             expect(refreshTokenCookie).toBeDefined();
             expect(refreshTokenCookie).toMatch(/HttpOnly/);
             // expect(refreshTokenCookie).toMatch(/Secure/); // Ensure HTTPS in production
+            expect(isJwt(refreshTokenCookie)).toBeTruthy(); // Check if it's a valid JWT)
         });
     });
 

@@ -12,6 +12,7 @@ export const Config = {
     DB_USERNAME: requiredEnv("DB_USERNAME"),
     DB_PASSWORD: requiredEnv("DB_PASSWORD"),
     DB_NAME: requiredEnv("DB_NAME"),
+    REFRESH_TOKEN_SECRET: requiredEnv("REFRESH_TOKEN_SECRET"),
 };
 
 function requiredEnv(name: string): string {
