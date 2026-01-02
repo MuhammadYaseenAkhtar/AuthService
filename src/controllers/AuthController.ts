@@ -1,5 +1,3 @@
-import fs from "fs";
-import path from "path";
 import type { NextFunction, Response } from "express";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import type { RegisterUserRequest } from "../types/index.ts";
@@ -10,10 +8,12 @@ import { validationResult } from "express-validator";
 import { Config } from "../config/index.ts";
 import { AppDataSource } from "../config/data-source.ts";
 import { RefreshToken } from "../entity/RefreshToken.ts";
+import type { TokenService } from "../services/TokenService.ts";
 export class AuthController {
     constructor(
         private userService: UserService,
         private logger: Logger,
+        private tokenService: TokenService,
     ) {}
     async register(
         req: RegisterUserRequest,
@@ -63,27 +63,8 @@ export class AuthController {
                 role: user.role,
             };
 
-            //private key for accessToken
-            let privateKey: string;
-            try {
-                privateKey = fs.readFileSync(
-                    path.resolve(process.cwd(), "certs/private.pem"),
-                    "utf8",
-                );
-            } catch (err) {
-                throw createHttpError(
-                    500,
-                    "Private key is not configured correctly",
-                    { cause: err },
-                );
-            }
-
-            //Sign Access Token
-            const accessToken = jwt.sign(payload, privateKey, {
-                algorithm: "RS256",
-                issuer: "Auth-Service",
-                expiresIn: "1h",
-            });
+            //Call Token service for Access Token Generation
+            const accessToken = this.tokenService.generateAccessToken(payload);
 
             // Setting access token in cookies
             res.cookie("accessToken", accessToken, {
