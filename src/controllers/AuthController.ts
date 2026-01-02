@@ -8,6 +8,8 @@ import type { Logger } from "winston";
 import createHttpError from "http-errors";
 import { validationResult } from "express-validator";
 import { Config } from "../config/index.ts";
+import { AppDataSource } from "../config/data-source.ts";
+import { RefreshToken } from "../entity/RefreshToken.ts";
 export class AuthController {
     constructor(
         private userService: UserService,
@@ -91,6 +93,15 @@ export class AuthController {
                 maxAge: 1000 * 60 * 60, //1h
             });
 
+            //persist the refresh token in DB
+            const milliSecondsInYear = 1000 * 60 * 60 * 24 * 365; //1 Year
+
+            const refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
+            const newRefreshToken = await refreshTokenRepo.save({
+                user: user,
+                expiresAt: new Date(Date.now() + milliSecondsInYear),
+            });
+
             //Sign Refresh Token
             const refreshToken = jwt.sign(
                 payload,
@@ -99,6 +110,7 @@ export class AuthController {
                     algorithm: "HS256",
                     expiresIn: "30D",
                     issuer: "Auth-Service",
+                    jwtid: String(newRefreshToken.id),
                 },
             );
 

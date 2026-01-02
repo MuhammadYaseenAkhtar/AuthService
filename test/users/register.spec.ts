@@ -6,6 +6,7 @@ import { AppDataSource } from "../../src/config/data-source.ts";
 import { User } from "../../src/entity/User.ts";
 import { Roles } from "../../src/constants/index.ts";
 import { isJwt } from "../utils/index.ts";
+import { RefreshToken } from "../../src/entity/RefreshToken.ts";
 
 describe("POST /auth/register", () => {
     let connection: DataSource;
@@ -213,22 +214,6 @@ describe("POST /auth/register", () => {
                 .post("/auth/register")
                 .send(user);
 
-            // interface Headers {
-            //     ['set-cookie']: string[];
-            // }
-
-            //             //Assert
-            //             const cookies = (response.headers as Headers)['set-cookie'] || [];
-
-            //             cookies.foreach((cookie) => {
-            //                 if(cookie.startsWith('accessToken=')){
-
-            //                 }
-            //             })
-
-            //         });
-
-            // Check that Set-Cookie header exists
             const cookies: string[] | undefined = response.headers[
                 "set-cookie"
             ] as unknown as string[] | undefined;
@@ -252,6 +237,35 @@ describe("POST /auth/register", () => {
             expect(refreshTokenCookie).toMatch(/HttpOnly/);
             // expect(refreshTokenCookie).toMatch(/Secure/); // Ensure HTTPS in production
             expect(isJwt(refreshTokenCookie)).toBeTruthy(); // Check if it's a valid JWT)
+        });
+
+        it("should persist the refresh token in DB", async () => {
+            //Arrange
+            const user = {
+                firstName: "Hasssan",
+                lastName: "akhtar",
+                email: "hassan@gmail.com",
+                password: "secretPass",
+            };
+
+            //Act
+
+            const response = await request(app)
+                .post("/auth/register")
+                .send(user);
+
+            //Assert
+            const refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
+            // const refreshTokens = await refreshTokenRepo.find();
+
+            const tokens = await refreshTokenRepo
+                .createQueryBuilder("refreshToken")
+                .where("refreshToken.userId = :userId", {
+                    userId: (response.body as Record<string, string>).id,
+                })
+                .getMany();
+
+            expect(tokens).toHaveLength(1);
         });
     });
 
