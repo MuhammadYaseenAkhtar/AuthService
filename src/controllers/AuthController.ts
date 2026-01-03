@@ -1,14 +1,13 @@
 import type { NextFunction, Response } from "express";
-import jwt, { type JwtPayload } from "jsonwebtoken";
+import { type JwtPayload } from "jsonwebtoken";
 import type { RegisterUserRequest } from "../types/index.ts";
 import type { UserService } from "../services/UserService.ts";
 import type { Logger } from "winston";
 import createHttpError from "http-errors";
 import { validationResult } from "express-validator";
-import { Config } from "../config/index.ts";
+import type { TokenService } from "../services/TokenService.ts";
 import { AppDataSource } from "../config/data-source.ts";
 import { RefreshToken } from "../entity/RefreshToken.ts";
-import type { TokenService } from "../services/TokenService.ts";
 export class AuthController {
     constructor(
         private userService: UserService,
@@ -83,17 +82,23 @@ export class AuthController {
                 expiresAt: new Date(Date.now() + milliSecondsInYear),
             });
 
+            //Call Token service for Access Token Generation
+            const refreshToken = this.tokenService.generateRefreshToken({
+                ...payload,
+                id: String(newRefreshToken.id),
+            });
+
             //Sign Refresh Token
-            const refreshToken = jwt.sign(
-                payload,
-                Config.REFRESH_TOKEN_SECRET,
-                {
-                    algorithm: "HS256",
-                    expiresIn: "30D",
-                    issuer: "Auth-Service",
-                    jwtid: String(newRefreshToken.id),
-                },
-            );
+            // const refreshToken = jwt.sign(
+            //     payload,
+            //     Config.REFRESH_TOKEN_SECRET,
+            //     {
+            //         algorithm: "HS256",
+            //         expiresIn: "30D",
+            //         issuer: "Auth-Service",
+            //         jwtid: String(newRefreshToken.id),
+            //     },
+            // );
 
             // Setting refresh token in cookies
             res.cookie("refreshToken", refreshToken, {

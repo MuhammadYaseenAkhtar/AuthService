@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import createHttpError from "http-errors";
+import { Config } from "../config/index.ts";
 
 export class TokenService {
     generateAccessToken(payload: JwtPayload) {
@@ -27,5 +28,16 @@ export class TokenService {
         });
 
         return accessToken;
+    }
+
+    generateRefreshToken(payload: JwtPayload) {
+        //Sign Refresh Token
+        const refreshToken = jwt.sign(payload, Config.REFRESH_TOKEN_SECRET, {
+            algorithm: "HS256",
+            expiresIn: "30D",
+            issuer: "Auth-Service",
+            jwtid: String(payload.id),
+        });
+        return refreshToken;
     }
 }
