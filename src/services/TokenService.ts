@@ -3,11 +3,12 @@ import path from "path";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import createHttpError from "http-errors";
 import { Config } from "../config/index.ts";
-import { AppDataSource } from "../config/data-source.ts";
 import { RefreshToken } from "../entity/RefreshToken.ts";
 import type { User } from "../entity/User.ts";
+import type { Repository } from "typeorm";
 
 export class TokenService {
+    constructor(private refreshTokenRepo: Repository<RefreshToken>) {}
     generateAccessToken(payload: JwtPayload) {
         //private key for accessToken
         let privateKey: string;
@@ -48,8 +49,8 @@ export class TokenService {
         //persist the refresh token in DB
         const milliSecondsInYear = 1000 * 60 * 60 * 24 * 365; //1 Year
 
-        const refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
-        const newRefreshToken = await refreshTokenRepo.save({
+        // const refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
+        const newRefreshToken = await this.refreshTokenRepo.save({
             user: user,
             expiresAt: new Date(Date.now() + milliSecondsInYear),
         });
