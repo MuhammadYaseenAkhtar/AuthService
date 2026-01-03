@@ -6,8 +6,6 @@ import type { Logger } from "winston";
 import createHttpError from "http-errors";
 import { validationResult } from "express-validator";
 import type { TokenService } from "../services/TokenService.ts";
-import { AppDataSource } from "../config/data-source.ts";
-import { RefreshToken } from "../entity/RefreshToken.ts";
 export class AuthController {
     constructor(
         private userService: UserService,
@@ -73,32 +71,15 @@ export class AuthController {
                 maxAge: 1000 * 60 * 60, //1h
             });
 
-            //persist the refresh token in DB
-            const milliSecondsInYear = 1000 * 60 * 60 * 24 * 365; //1 Year
-
-            const refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
-            const newRefreshToken = await refreshTokenRepo.save({
-                user: user,
-                expiresAt: new Date(Date.now() + milliSecondsInYear),
-            });
+            //Call Token service for persistence of refresh token in DB
+            const newRefreshToken =
+                await this.tokenService.persistRefreshToken(user);
 
             //Call Token service for Access Token Generation
             const refreshToken = this.tokenService.generateRefreshToken({
                 ...payload,
                 id: String(newRefreshToken.id),
             });
-
-            //Sign Refresh Token
-            // const refreshToken = jwt.sign(
-            //     payload,
-            //     Config.REFRESH_TOKEN_SECRET,
-            //     {
-            //         algorithm: "HS256",
-            //         expiresIn: "30D",
-            //         issuer: "Auth-Service",
-            //         jwtid: String(newRefreshToken.id),
-            //     },
-            // );
 
             // Setting refresh token in cookies
             res.cookie("refreshToken", refreshToken, {

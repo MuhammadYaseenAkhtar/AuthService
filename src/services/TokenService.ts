@@ -3,6 +3,9 @@ import path from "path";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import createHttpError from "http-errors";
 import { Config } from "../config/index.ts";
+import { AppDataSource } from "../config/data-source.ts";
+import { RefreshToken } from "../entity/RefreshToken.ts";
+import type { User } from "../entity/User.ts";
 
 export class TokenService {
     generateAccessToken(payload: JwtPayload) {
@@ -39,5 +42,18 @@ export class TokenService {
             jwtid: String(payload.id),
         });
         return refreshToken;
+    }
+
+    async persistRefreshToken(user: User) {
+        //persist the refresh token in DB
+        const milliSecondsInYear = 1000 * 60 * 60 * 24 * 365; //1 Year
+
+        const refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
+        const newRefreshToken = await refreshTokenRepo.save({
+            user: user,
+            expiresAt: new Date(Date.now() + milliSecondsInYear),
+        });
+
+        return newRefreshToken;
     }
 }
