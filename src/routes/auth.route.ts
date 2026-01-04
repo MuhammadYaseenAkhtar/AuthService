@@ -12,13 +12,20 @@ import registerValidator from "../validators/registerValidator.ts";
 import { TokenService } from "../services/TokenService.ts";
 import { RefreshToken } from "../entity/RefreshToken.ts";
 import loginValidator from "../validators/loginValidator.ts";
+import { CredentialService } from "../services/CredentialService.ts";
 const router = express.Router();
 
 const userRepository = AppDataSource.getRepository(User);
 const userService = new UserService(userRepository);
 const refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
 const tokenService = new TokenService(refreshTokenRepo);
-const authController = new AuthController(userService, logger, tokenService);
+const credentialService = new CredentialService();
+const authController = new AuthController(
+    userService,
+    logger,
+    tokenService,
+    credentialService,
+);
 
 router.post(
     "/register",

@@ -6,13 +6,14 @@ import type { Logger } from "winston";
 import createHttpError from "http-errors";
 import { validationResult } from "express-validator";
 import type { TokenService } from "../services/TokenService.ts";
-import bcrypt from "bcrypt";
+import type { CredentialService } from "../services/CredentialService.ts";
 
 export class AuthController {
     constructor(
         private userService: UserService,
         private logger: Logger,
         private tokenService: TokenService,
+        private credentialService: CredentialService,
     ) {}
     async register(
         req: RegisterUserRequest,
@@ -126,7 +127,7 @@ export class AuthController {
             }
 
             //check password
-            const isPasswordValid = await bcrypt.compare(
+            const isPasswordValid = await this.credentialService.checkPassword(
                 password,
                 user.password,
             );
