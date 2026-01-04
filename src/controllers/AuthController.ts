@@ -103,6 +103,14 @@ export class AuthController {
 
     login(req: Request, res: Response, next: NextFunction) {
         try {
+            //validate request using express-validator.
+            const result = validationResult(req);
+            if (!result.isEmpty()) {
+                return res.status(400).json({
+                    errors: result.array(),
+                });
+            }
+
             const { email, password } = req.body as LoginRequest;
             console.log(email, password);
 

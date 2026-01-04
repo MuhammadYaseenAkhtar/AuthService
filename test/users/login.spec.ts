@@ -26,7 +26,7 @@ describe("POST /auth/login", () => {
 
             //Arrange
             const user = {
-                email: "yaseen@gmail.com",
+                email: "muhammad.YASEEN@Gmail.com",
                 password: "secretPassword",
             };
 
