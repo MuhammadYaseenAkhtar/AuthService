@@ -25,4 +25,7 @@ router.post(
     (req: Request, res: Response, next: NextFunction) =>
         authController.register(req, res, next),
 );
+router.post("/login", (req: Request, res: Response, next: NextFunction) =>
+    authController.login(req, res, next),
+);
 export default router;

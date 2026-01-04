@@ -1,4 +1,4 @@
-import type { NextFunction, Response } from "express";
+import type { Request, NextFunction, Response } from "express";
 import { type JwtPayload } from "jsonwebtoken";
 import type { RegisterUserRequest } from "../types/index.ts";
 import type { UserService } from "../services/UserService.ts";
@@ -6,6 +6,12 @@ import type { Logger } from "winston";
 import createHttpError from "http-errors";
 import { validationResult } from "express-validator";
 import type { TokenService } from "../services/TokenService.ts";
+
+interface LoginRequest {
+    email: string;
+    password: string;
+}
+
 export class AuthController {
     constructor(
         private userService: UserService,
@@ -94,6 +100,18 @@ export class AuthController {
                 id: user.id,
                 message: `User ${user.firstName} with id ${user.id} has been registered successfully.`,
             });
+        } catch (error) {
+            next(error);
+            return;
+        }
+    }
+
+    login(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { email, password } = req.body as LoginRequest;
+            console.log(email, password);
+
+            return res.status(200).json({});
         } catch (error) {
             next(error);
             return;
