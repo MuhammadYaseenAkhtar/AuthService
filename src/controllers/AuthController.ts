@@ -6,6 +6,7 @@ import type { Logger } from "winston";
 import createHttpError from "http-errors";
 import { validationResult } from "express-validator";
 import type { TokenService } from "../services/TokenService.ts";
+import bcrypt from "bcrypt";
 
 export class AuthController {
     constructor(
@@ -101,7 +102,7 @@ export class AuthController {
         }
     }
 
-    login(req: Request, res: Response, next: NextFunction) {
+    async login(req: Request, res: Response, next: NextFunction) {
         try {
             //validate request using express-validator.
             const result = validationResult(req);
@@ -112,9 +113,73 @@ export class AuthController {
             }
 
             const { email, password } = req.body as LoginRequest;
-            console.log(email, password);
 
-            return res.status(200).json({});
+            //check if email is exists in Db
+            const emailExists = await this.userService.checkEmail(email);
+
+            if (!emailExists) {
+                const error = createHttpError(
+                    400,
+                    "Invalid Credentials! Try Again please.",
+                );
+                throw error;
+            }
+
+            //check password
+            const isPasswordValid = await bcrypt.compare(
+                password,
+                emailExists.password,
+            );
+
+            if (!isPasswordValid) {
+                const error = createHttpError(
+                    400,
+                    "Invalid Credentials! Try Again please.",
+                );
+                throw error;
+            }
+
+            //*** access & refresh token generation ***
+
+            //payload
+            const payload: JwtPayload = {
+                sub: String(emailExists.id),
+                role: emailExists.role,
+            };
+
+            //Call Token service for Access Token Generation
+            const accessToken = this.tokenService.generateAccessToken(payload);
+
+            // Setting access token in cookies
+            res.cookie("accessToken", accessToken, {
+                httpOnly: true,
+                sameSite: "strict",
+                domain: "localhost",
+                maxAge: 1000 * 60 * 60, //1h
+            });
+
+            //Call Token service for persistence of refresh token in DB
+            const newRefreshToken =
+                await this.tokenService.persistRefreshToken(emailExists);
+
+            //Call Token service for Access Token Generation
+            const refreshToken = this.tokenService.generateRefreshToken({
+                ...payload,
+                id: String(newRefreshToken.id),
+            });
+
+            // Setting refresh token in cookies
+            res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                sameSite: "strict",
+                domain: "localhost",
+                maxAge: 1000 * 60 * 60 * 24 * 30, //1M
+            });
+
+            //return response
+            return res.status(200).json({
+                message: `Congrats ${emailExists.firstName}, You've logged in successfully; Your ID is ${emailExists.id}`,
+            });
         } catch (error) {
             next(error);
             return;
