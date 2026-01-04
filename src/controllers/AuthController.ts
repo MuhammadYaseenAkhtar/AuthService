@@ -1,16 +1,11 @@
 import type { Request, NextFunction, Response } from "express";
 import { type JwtPayload } from "jsonwebtoken";
-import type { RegisterUserRequest } from "../types/index.ts";
+import type { LoginRequest, RegisterUserRequest } from "../types/index.ts";
 import type { UserService } from "../services/UserService.ts";
 import type { Logger } from "winston";
 import createHttpError from "http-errors";
 import { validationResult } from "express-validator";
 import type { TokenService } from "../services/TokenService.ts";
-
-interface LoginRequest {
-    email: string;
-    password: string;
-}
 
 export class AuthController {
     constructor(
