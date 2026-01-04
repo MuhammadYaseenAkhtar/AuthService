@@ -27,7 +27,7 @@
         "format:fix": "prettier . --write",
         "lint:check": "eslint .",
         "lint:fix": "eslint . --fix",
-        "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --watch --runInBand",
+        "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --watch --runInBand --verbose",
         "prepare": "husky"
     },
     "devDependencies": {
