@@ -115,9 +115,9 @@ export class AuthController {
             const { email, password } = req.body as LoginRequest;
 
             //check if email is exists in Db
-            const emailExists = await this.userService.checkEmail(email);
+            const user = await this.userService.checkEmail(email);
 
-            if (!emailExists) {
+            if (!user) {
                 const error = createHttpError(
                     400,
                     "Invalid Credentials! Try Again please.",
@@ -128,7 +128,7 @@ export class AuthController {
             //check password
             const isPasswordValid = await bcrypt.compare(
                 password,
-                emailExists.password,
+                user.password,
             );
 
             if (!isPasswordValid) {
@@ -143,8 +143,8 @@ export class AuthController {
 
             //payload
             const payload: JwtPayload = {
-                sub: String(emailExists.id),
-                role: emailExists.role,
+                sub: String(user.id),
+                role: user.role,
             };
 
             //Call Token service for Access Token Generation
@@ -160,7 +160,7 @@ export class AuthController {
 
             //Call Token service for persistence of refresh token in DB
             const newRefreshToken =
-                await this.tokenService.persistRefreshToken(emailExists);
+                await this.tokenService.persistRefreshToken(user);
 
             //Call Token service for Access Token Generation
             const refreshToken = this.tokenService.generateRefreshToken({
@@ -178,7 +178,7 @@ export class AuthController {
 
             //return response
             return res.status(200).json({
-                message: `Congrats ${emailExists.firstName}, You've logged in successfully; Your ID is ${emailExists.id}`,
+                message: `Congrats ${user.firstName}, You've logged in successfully; Your ID is ${user.id}`,
             });
         } catch (error) {
             next(error);
