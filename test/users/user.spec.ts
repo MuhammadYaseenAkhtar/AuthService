@@ -1,31 +1,40 @@
+// test/users/user.spec.ts
 import { DataSource } from "typeorm";
-import app from "../../src/app.ts";
+import app from "../../src/app.js";
 import request from "supertest";
-import { createJWKSMock } from "mock-jwks";
-import { AppDataSource } from "../../src/config/data-source.ts";
-import { User } from "../../src/entity/User.ts";
-import { Roles } from "../../src/constants/index.ts";
+import { AppDataSource } from "../../src/config/data-source.js";
+import { User } from "../../src/entity/User.js";
+import { Roles } from "../../src/constants/index.js";
+import jsonwebtoken from "jsonwebtoken";
+import fs from "fs";
+import path from "path";
+import createHttpError from "http-errors";
 
 describe("GET /auth/me", () => {
     let connection: DataSource;
-    let jwks: ReturnType<typeof createJWKSMock>;
+    let privateKey: string;
 
     beforeAll(async () => {
-        jwks = createJWKSMock("http://localhost:1717");
         connection = await AppDataSource.initialize();
+
+        // Load private key from certs folder
+        try {
+            privateKey = fs.readFileSync(
+                path.resolve(process.cwd(), "certs/private.pem"),
+                "utf8",
+            );
+        } catch (err) {
+            throw createHttpError(
+                500,
+                "Private key is not configured correctly",
+                { cause: err },
+            );
+        }
     });
 
     beforeEach(async () => {
-        //start jwks server
-        jwks.start();
-        //Database drop
         await connection.dropDatabase();
         await connection.synchronize();
-    });
-
-    afterEach(() => {
-        //stop jwks server
-        jwks.stop();
     });
 
     afterAll(async () => {
@@ -34,37 +43,59 @@ describe("GET /auth/me", () => {
 
     describe("Valid Token provided", () => {
         it("should return 200 status", async () => {
-            //Arrange
-            // (1) --> Register User
-            const user = {
-                firstName: "Hasssan",
-                lastName: "akhtar",
+            // Arrange: Register User
+            const userData = {
+                firstName: "Hassan",
+                lastName: "Akhtar",
                 email: "hassan@gmail.com",
                 password: "secretPass",
             };
 
             const userRepository = connection.getRepository(User);
             const registeredUser = await userRepository.save({
-                ...user,
+                ...userData,
                 role: Roles.CUSTOMER,
             });
 
-            // (2) --> Generate Token
-            const accessToken = jwks.token({
-                sub: String(registeredUser.id),
-                role: registeredUser.role,
-            });
-            //Act
+            // Act: Generate REAL RS256 token
+            const accessToken = jsonwebtoken.sign(
+                {
+                    sub: String(registeredUser.id),
+                    role: registeredUser.role,
+                },
+                privateKey,
+                {
+                    algorithm: "RS256",
+                    expiresIn: "1h",
+                    issuer: "auth-service",
+                },
+            );
+
             const response = await request(app)
                 .get("/auth/me")
-                .set("Cookie", [`accessToken = ${accessToken}`])
+                .set("Cookie", [`accessToken=${accessToken}`])
                 .send();
 
-            //Assert
-            //check if user id matches with registered user
+            // Assert
+            expect(response.status).toBe(200);
             expect((response.body as Record<string, string>).id).toBe(
                 registeredUser.id,
             );
+        });
+
+        it("should return 401 if token is invalid", async () => {
+            const response = await request(app)
+                .get("/auth/me")
+                .set("Cookie", [`accessToken=invalid.token.here`])
+                .send();
+
+            expect(response.status).toBe(401);
+        });
+
+        it("should return 401 if no token provided", async () => {
+            const response = await request(app).get("/auth/me").send();
+
+            expect(response.status).toBe(401);
         });
     });
 });

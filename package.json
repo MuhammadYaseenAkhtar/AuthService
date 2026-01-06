@@ -44,7 +44,6 @@
         "husky": "^9.1.7",
         "jest": "^30.2.0",
         "lint-staged": "^16.2.7",
-        "mock-jwks": "^3.3.5",
         "prettier": "3.7.4",
         "supertest": "^7.1.4",
         "ts-jest": "^29.4.6",
