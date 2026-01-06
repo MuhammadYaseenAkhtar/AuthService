@@ -186,4 +186,8 @@ export class AuthController {
             return;
         }
     }
+
+    me(_req: Request, res: Response) {
+        res.status(200).json({});
+    }
 }
