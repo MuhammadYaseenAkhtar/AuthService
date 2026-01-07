@@ -1,6 +1,10 @@
 import type { Request, NextFunction, Response } from "express";
 import { type JwtPayload } from "jsonwebtoken";
-import type { LoginRequest, RegisterUserRequest } from "../types/index.ts";
+import type {
+    authRequest,
+    LoginRequest,
+    RegisterUserRequest,
+} from "../types/index.ts";
 import type { UserService } from "../services/UserService.ts";
 import type { Logger } from "winston";
 import createHttpError from "http-errors";
@@ -187,7 +191,9 @@ export class AuthController {
         }
     }
 
-    me(_req: Request, res: Response) {
+    me(req: authRequest, res: Response) {
+        console.log("REQUEST AUTH", req.auth);
+        console.log("REACHED HERE ALDFJALDFJALDFJA LAJFDLAFD ");
         res.status(200).json({});
     }
 }

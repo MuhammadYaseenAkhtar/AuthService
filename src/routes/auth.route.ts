@@ -13,6 +13,8 @@ import { TokenService } from "../services/TokenService.ts";
 import { RefreshToken } from "../entity/RefreshToken.ts";
 import loginValidator from "../validators/loginValidator.ts";
 import { CredentialService } from "../services/CredentialService.ts";
+import { authMiddleware } from "../middlewares/auth.middleware.ts";
+import type { authRequest } from "../types/index.ts";
 const router = express.Router();
 
 const userRepository = AppDataSource.getRepository(User);
@@ -41,6 +43,8 @@ router.post(
         authController.login(req, res, next),
 );
 
-router.get("/me", (req: Request, res: Response) => authController.me(req, res));
+router.get("/me", authMiddleware, (req: Request, res: Response) =>
+    authController.me(req as authRequest, res),
+);
 
 export default router;

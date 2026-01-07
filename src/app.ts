@@ -4,6 +4,7 @@ import express, {
     type Request,
     type Response,
 } from "express";
+import cookieParser from "cookie-parser";
 import logger from "./config/logger.ts";
 import { HttpError } from "http-errors";
 import authRouter from "./routes/auth.route.ts";
@@ -11,6 +12,7 @@ import authRouter from "./routes/auth.route.ts";
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.get("/", (_req, res) => {
     res.status(200).send("Welcome to Express app.");

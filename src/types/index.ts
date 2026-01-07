@@ -15,3 +15,14 @@ export interface LoginRequest {
     email: string;
     password: string;
 }
+
+export type authCookies = {
+    accessToken: string;
+};
+
+export interface authRequest extends Request {
+    auth: {
+        sub: string;
+        role: string;
+    };
+}
