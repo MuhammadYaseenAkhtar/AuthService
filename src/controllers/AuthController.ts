@@ -193,7 +193,6 @@ export class AuthController {
 
     me(req: authRequest, res: Response) {
         console.log("REQUEST AUTH", req.auth);
-        console.log("REACHED HERE ALDFJALDFJALDFJA LAJFDLAFD ");
         res.status(200).json({});
     }
 }

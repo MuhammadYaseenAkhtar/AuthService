@@ -3,7 +3,6 @@ import JwksRsa from "jwks-rsa";
 import type { Request } from "express";
 import { Config } from "../config/index.ts";
 import type { authCookies } from "../types/index.ts";
-console.log(Config.JWKS_URI);
 
 export const authMiddleware = expressjwt({
     secret: JwksRsa.expressJwtSecret({
