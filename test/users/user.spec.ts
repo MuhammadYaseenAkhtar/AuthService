@@ -77,6 +77,7 @@ describe("GET /auth/me", () => {
                 .send();
 
             // Assert
+
             expect(response.status).toBe(200);
             expect((response.body as Record<string, string>).id).toBe(
                 registeredUser.id,

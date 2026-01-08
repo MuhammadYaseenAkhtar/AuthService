@@ -43,4 +43,18 @@ export class UserService {
             throw error;
         }
     }
+
+    async findById(id: number) {
+        try {
+            const user = await this.userRepository.findOneBy({ id });
+
+            return user;
+        } catch {
+            const error = createHttpError(
+                500,
+                "Something went wrong while finding the user by ID!",
+            );
+            throw error;
+        }
+    }
 }

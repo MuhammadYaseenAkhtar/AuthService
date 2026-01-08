@@ -191,8 +191,8 @@ export class AuthController {
         }
     }
 
-    me(req: authRequest, res: Response) {
-        console.log("REQUEST AUTH", req.auth);
-        res.status(200).json({});
+    async me(req: authRequest, res: Response) {
+        const user = await this.userService.findById(Number(req.auth.sub));
+        res.status(200).json(user);
     }
 }
