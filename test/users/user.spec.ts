@@ -41,8 +41,8 @@ describe("GET /auth/me", () => {
         await connection.destroy();
     });
 
-    describe("Valid Token provided", () => {
-        it("should return 200 status", async () => {
+    describe("Token Verification", () => {
+        it("should return 200 status if token is valid", async () => {
             // Arrange: Register User
             const userData = {
                 firstName: "Hassan",
@@ -82,6 +82,63 @@ describe("GET /auth/me", () => {
             expect((response.body as Record<string, string>).id).toBe(
                 registeredUser.id,
             );
+        });
+
+        it("should not return password field in user response", async () => {
+            // Arrange: Register User
+            const userData = {
+                firstName: "Hassan",
+                lastName: "Akhtar",
+                email: "hassan@gmail.com",
+                password: "secretPass",
+            };
+
+            const userRepository = connection.getRepository(User);
+
+            const registeredUser = await userRepository.save({
+                ...userData,
+                role: Roles.CUSTOMER,
+            });
+
+            // Act: Generate REAL RS256 token
+            const accessToken = jsonwebtoken.sign(
+                {
+                    sub: String(registeredUser.id),
+                    role: registeredUser.role,
+                },
+                privateKey,
+                {
+                    algorithm: "RS256",
+                    expiresIn: "1h",
+                    issuer: "auth-service",
+                },
+            );
+
+            const response = await request(app)
+                .get("/auth/me")
+                .set("Cookie", [`accessToken=${accessToken}`])
+                .send();
+
+            // Assert: Status
+            expect(response.status).toBe(200);
+            console.log("response.body", response.body);
+            // Assert: Core identity fields
+            expect(response.body).toMatchObject({
+                id: registeredUser.id,
+                email: registeredUser.email,
+                role: registeredUser.role,
+            });
+
+            // Assert: Password MUST NOT be present
+            expect(response.body).not.toHaveProperty("password");
+
+            // Extra hardening: no accidental leakage
+            expect(
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                Object.keys(response.body).some((key) =>
+                    key.toLowerCase().includes("password"),
+                ),
+            ).toBe(false);
         });
 
         it("should return 401 if token is invalid", async () => {
