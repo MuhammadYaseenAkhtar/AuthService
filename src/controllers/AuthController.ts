@@ -195,4 +195,8 @@ export class AuthController {
         const user = await this.userService.findById(Number(req.auth.sub));
         res.status(200).json(user);
     }
+
+    refresh(_req: Request, res: Response) {
+        return res.json({});
+    }
 }
