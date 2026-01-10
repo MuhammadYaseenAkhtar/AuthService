@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { DataSource } from "typeorm";
 import app from "../../src/app.ts";
 import request from "supertest";
@@ -100,6 +103,127 @@ describe("POST /auth/login", () => {
             expect(refreshTokenCookie).toMatch(/HttpOnly/);
             // expect(refreshTokenCookie).toMatch(/Secure/); // Ensure HTTPS in production
             expect(isJwt(refreshTokenCookie)).toBeTruthy(); // Check if it's a valid JWT)
+        });
+    });
+
+    describe("Given invalid request body", () => {
+        it("should return 400 when email is missing", async () => {
+            const payload = {
+                password: "secretPassword",
+            };
+
+            const response = await request(app)
+                .post("/auth/login")
+                .send(payload);
+
+            expect(response.statusCode).toBe(400);
+            expect(response.body).toHaveProperty("errors");
+            expect(Array.isArray(response.body.errors)).toBe(true);
+
+            const messages = response.body.errors.map(
+                (error: { msg: string }) => error.msg,
+            );
+
+            expect(messages).toContain("Email is required");
+        });
+
+        it("should return 400 when password is missing", async () => {
+            const payload = {
+                email: "yaseen@gmail.com",
+            };
+
+            const response = await request(app)
+                .post("/auth/login")
+                .send(payload);
+
+            expect(response.statusCode).toBe(400);
+            expect(response.body).toHaveProperty("errors");
+            expect(Array.isArray(response.body.errors)).toBe(true);
+
+            const messages = response.body.errors.map(
+                (error: { msg: string }) => error.msg,
+            );
+
+            expect(messages).toContain("Password is required");
+        });
+
+        it("should return 400 when email has invalid format", async () => {
+            const payload = {
+                email: "not-an-email",
+                password: "secretPassword",
+            };
+
+            const response = await request(app)
+                .post("/auth/login")
+                .send(payload);
+
+            expect(response.statusCode).toBe(400);
+            expect(response.body).toHaveProperty("errors");
+            expect(Array.isArray(response.body.errors)).toBe(true);
+
+            const messages = response.body.errors.map(
+                (error: { msg: string }) => error.msg,
+            );
+
+            expect(messages).toContain("Invalid email format");
+        });
+    });
+
+    describe("Given wrong credentials", () => {
+        it("should return 400 when user with email does not exist", async () => {
+            const payload = {
+                email: "doesnotexist@example.com",
+                password: "somePassword",
+            };
+
+            const response = await request(app)
+                .post("/auth/login")
+                .send(payload);
+
+            expect(response.statusCode).toBe(400);
+            expect(response.body).toHaveProperty("errors");
+            expect(Array.isArray(response.body.errors)).toBe(true);
+
+            const messages = response.body.errors.map(
+                (error: { msg: string }) => error.msg,
+            );
+
+            expect(messages).toContain(
+                "Invalid Credentials! Try Again please.",
+            );
+        });
+
+        it("should return 400 when password is incorrect", async () => {
+            const user = {
+                email: "yaseen@gmail.com",
+                password: "secretPassword",
+            };
+
+            const hashedPassword = await bcrypt.hash("anotherPassword", 10);
+            const userRepository = connection.getRepository(User);
+            await userRepository.save({
+                ...user,
+                firstName: "Yaseen",
+                lastName: "Akhtar",
+                password: hashedPassword,
+                role: Roles.CUSTOMER,
+            });
+
+            const response = await request(app)
+                .post("/auth/login")
+                .send({ ...user, password: "wrongPassword" });
+
+            expect(response.statusCode).toBe(400);
+            expect(response.body).toHaveProperty("errors");
+            expect(Array.isArray(response.body.errors)).toBe(true);
+
+            const messages = response.body.errors.map(
+                (error: { msg: string }) => error.msg,
+            );
+
+            expect(messages).toContain(
+                "Invalid Credentials! Try Again please.",
+            );
         });
     });
 });
