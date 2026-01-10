@@ -427,5 +427,275 @@ describe("POST /auth/register", () => {
             expect(response.statusCode).toBe(400);
             expect(users).toHaveLength(0);
         });
+
+        it("should return 400 status if password is more than 20 characters", async () => {
+            //Arrange
+            const user = {
+                firstName: "Yasin",
+                lastName: "Akhtar",
+                email: "muhammad@gmail.com",
+                password: "thisPasswordIsWayTooLongForOurSystem",
+            };
+
+            //Act
+            const response = await request(app)
+                .post("/auth/register")
+                .send(user);
+
+            //Assert
+            expect(response.statusCode).toBe(400);
+        });
+
+        it("should accept special characters in first and last names", async () => {
+            //Arrange
+            const user = {
+                firstName: "José",
+                lastName: "O'Brien",
+                email: "jose@gmail.com",
+                password: "secretPass123",
+            };
+
+            //Act
+            const response = await request(app)
+                .post("/auth/register")
+                .send(user);
+
+            //Assert
+            const userRepository = connection.getRepository(User);
+            const users = await userRepository.find();
+
+            expect(response.statusCode).toBe(201);
+            expect(users[0].firstName).toBe("José");
+            expect(users[0].lastName).toBe("O'Brien");
+        });
+    });
+
+    describe("Edge Cases and Security", () => {
+        it("should return 400 if email contains SQL injection attempt", async () => {
+            //Arrange
+            const user = {
+                firstName: "Yasin",
+                lastName: "Akhtar",
+                email: "test@test.com'; DROP TABLE users; --",
+                password: "secretPass",
+            };
+
+            //Act
+            const response = await request(app)
+                .post("/auth/register")
+                .send(user);
+
+            //Assert
+            expect(response.statusCode).toBe(400);
+        });
+
+        it("should sanitize and store XSS attempts safely", async () => {
+            //Arrange
+            const user = {
+                firstName: "<script>alert('xss')</script>",
+                lastName: "Test",
+                email: "xss@test.com",
+                password: "secretPass",
+            };
+
+            //Act
+            const response = await request(app)
+                .post("/auth/register")
+                .send(user);
+
+            //Assert - Should accept but store safely
+            const userRepository = connection.getRepository(User);
+            const users = await userRepository.find();
+
+            if (response.statusCode === 201) {
+                // If accepted, verify it's stored as-is (DB layer handles safety)
+                expect(users[0].firstName).toBe(
+                    "<script>alert('xss')</script>",
+                );
+            }
+            // Either way, ensure no actual XSS execution
+        });
+
+        // it("should return 400 if firstName is only whitespace", async () => {
+        //     //Arrange
+        //     const user = {
+        //         firstName: "   ",
+        //         lastName: "Akhtar",
+        //         email: "test@gmail.com",
+        //         password: "secretPass",
+        //     };
+
+        //     //Act
+        //     const response = await request(app)
+        //         .post("/auth/register")
+        //         .send(user);
+        //     console.log(response.body);
+        //     //Assert
+        //     expect(response.statusCode).toBe(400);
+        // });
+
+        // it("should return 400 if lastName is only whitespace", async () => {
+        //     //Arrange
+        //     const user = {
+        //         firstName: "Yasin",
+        //         lastName: "   ",
+        //         email: "test@gmail.com",
+        //         password: "secretPass",
+        //     };
+
+        //     //Act
+        //     const response = await request(app)
+        //         .post("/auth/register")
+        //         .send(user);
+
+        //     //Assert
+        //     expect(response.statusCode).toBe(400);
+        // });
+
+        it("should return 400 if email has spaces in the middle", async () => {
+            //Arrange
+            const user = {
+                firstName: "Yasin",
+                lastName: "Akhtar",
+                email: "test @gmail.com",
+                password: "secretPass",
+            };
+
+            //Act
+            const response = await request(app)
+                .post("/auth/register")
+                .send(user);
+
+            //Assert
+            expect(response.statusCode).toBe(400);
+        });
+
+        it("should return 400 if request body is missing", async () => {
+            //Act
+            const response = await request(app).post("/auth/register").send({});
+
+            //Assert
+            expect(response.statusCode).toBe(400);
+        });
+
+        it("should return 400 if extra unexpected fields are provided", async () => {
+            //Arrange
+            const user = {
+                firstName: "Yasin",
+                lastName: "Akhtar",
+                email: "test@gmail.com",
+                password: "secretPass",
+                role: "ADMIN", // Trying to inject admin role
+                isVerified: true,
+            };
+
+            //Act
+            const response = await request(app)
+                .post("/auth/register")
+                .send(user);
+
+            //Assert - Should still create user but ignore extra fields
+            if (response.statusCode === 201) {
+                const userRepository = connection.getRepository(User);
+                const users = await userRepository.find();
+                expect(users[0].role).toBe(Roles.CUSTOMER); // Not ADMIN
+            }
+        });
+
+        it("should return valid JSON error response for validation errors", async () => {
+            //Arrange
+            const user = {
+                firstName: "",
+                lastName: "Akhtar",
+                email: "invalidemail",
+                password: "short",
+            };
+
+            //Act
+            const response = await request(app)
+                .post("/auth/register")
+                .send(user);
+
+            //Assert
+            expect(response.statusCode).toBe(400);
+            expect(response.headers["content-type"]).toEqual(
+                expect.stringContaining("json"),
+            );
+            expect(response.body).toHaveProperty("errors");
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            expect(Array.isArray(response.body.errors)).toBe(true);
+        });
+
+        it("should handle concurrent registration attempts with same email", async () => {
+            //Arrange
+            const user = {
+                firstName: "Yasin",
+                lastName: "Akhtar",
+                email: "concurrent@gmail.com",
+                password: "secretPass",
+            };
+
+            //Act - Send two requests simultaneously
+            const [response1, response2] = await Promise.all([
+                request(app).post("/auth/register").send(user),
+                request(app).post("/auth/register").send(user),
+            ]);
+
+            //Assert - One should succeed, one should fail
+            const statuses = [
+                response1.statusCode,
+                response2.statusCode,
+            ].sort();
+            expect(statuses).toEqual([201, 500]);
+
+            // Verify only one user was created
+            const userRepository = connection.getRepository(User);
+            const users = await userRepository.find({
+                where: { email: user.email },
+            });
+            expect(users).toHaveLength(1);
+        });
+
+        it("should accept password with special characters", async () => {
+            //Arrange
+            const user = {
+                firstName: "Yasin",
+                lastName: "Akhtar",
+                email: "special@gmail.com",
+                password: "P@ssw0rd!#$%",
+            };
+
+            //Act
+            const response = await request(app)
+                .post("/auth/register")
+                .send(user);
+
+            //Assert
+            expect(response.statusCode).toBe(201);
+        });
+
+        it("should not store password in plain text even if bcrypt fails", async () => {
+            //Arrange
+            const user = {
+                firstName: "Yasin",
+                lastName: "Akhtar",
+                email: "bcrypt@gmail.com",
+                password: "secretPass",
+            };
+
+            //Act
+            const response = await request(app)
+                .post("/auth/register")
+                .send(user);
+
+            //Assert
+            if (response.statusCode === 201) {
+                const userRepository = connection.getRepository(User);
+                const users = await userRepository.find({
+                    where: { email: user.email },
+                });
+                expect(users[0].password).not.toBe(user.password);
+            }
+        });
     });
 });

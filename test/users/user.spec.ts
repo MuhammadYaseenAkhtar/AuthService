@@ -121,7 +121,6 @@ describe("GET /auth/me", () => {
 
             // Assert: Status
             expect(response.status).toBe(200);
-            console.log("response.body", response.body);
             // Assert: Core identity fields
             expect(response.body).toMatchObject({
                 id: registeredUser.id,
