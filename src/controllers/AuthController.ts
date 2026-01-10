@@ -261,8 +261,6 @@ export class AuthController {
 
     async logout(req: authRequest, res: Response, next: NextFunction) {
         try {
-            console.log(req.auth);
-
             await this.tokenService.deleteOldRefreshToken(Number(req.auth.id));
             res.clearCookie("accessToken");
             res.clearCookie("refreshToken");
