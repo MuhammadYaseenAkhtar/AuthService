@@ -196,7 +196,66 @@ export class AuthController {
         res.status(200).json(user);
     }
 
-    refresh(_req: Request, res: Response) {
-        return res.json({});
+    async refresh(req: authRequest, res: Response, next: NextFunction) {
+        try {
+            //*** access & refresh token generation ***
+
+            //payload
+            const payload: JwtPayload = {
+                sub: String(req.auth.sub),
+                role: req.auth.role,
+            };
+
+            //Call Token service for Access Token Generation
+            const accessToken = this.tokenService.generateAccessToken(payload);
+
+            //get the user from DB
+            const user = await this.userService.findById(Number(req.auth.sub));
+
+            if (!user) {
+                const error = createHttpError(
+                    400,
+                    "Invalid Token; It has been Revoked.",
+                );
+                throw error;
+            }
+
+            //Call Token service for persistence of refresh token in DB
+            const newRefreshToken =
+                await this.tokenService.persistRefreshToken(user);
+
+            //Call Token service for Deletion of old refresh token in DB
+            await this.tokenService.deleteOldRefreshToken(Number(req.auth.id));
+
+            //Call Token service for Access Token Generation
+            const refreshToken = this.tokenService.generateRefreshToken({
+                ...payload,
+                id: String(newRefreshToken.id),
+            });
+
+            // Setting access token in cookies
+            res.cookie("accessToken", accessToken, {
+                httpOnly: true,
+                sameSite: "strict",
+                domain: "localhost",
+                maxAge: 1000 * 60 * 60, //1h
+            });
+
+            // Setting refresh token in cookies
+            res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                sameSite: "strict",
+                domain: "localhost",
+                maxAge: 1000 * 60 * 60 * 24 * 30, //1M
+            });
+
+            //return response
+            return res.status(200).json({
+                message: `Congrats ${user.firstName}, Your tokens have been refreshed successfully; Your ID is ${user.id}`,
+            });
+        } catch (error) {
+            next(error);
+            return;
+        }
     }
 }

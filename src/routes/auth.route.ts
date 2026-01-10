@@ -48,8 +48,11 @@ router.get("/me", authMiddleware, (req: Request, res: Response) =>
     authController.me(req as authRequest, res),
 );
 
-router.post("/refresh", validateRefreshToken, (req: Request, res: Response) =>
-    authController.refresh(req, res),
+router.post(
+    "/refresh",
+    validateRefreshToken,
+    (req: Request, res: Response, next: NextFunction) =>
+        authController.refresh(req as authRequest, res, next),
 );
 
 export default router;
