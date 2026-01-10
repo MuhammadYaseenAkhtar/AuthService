@@ -258,4 +258,20 @@ export class AuthController {
             return;
         }
     }
+
+    async logout(req: authRequest, res: Response, next: NextFunction) {
+        try {
+            console.log(req.auth);
+
+            await this.tokenService.deleteOldRefreshToken(Number(req.auth.id));
+            res.clearCookie("accessToken");
+            res.clearCookie("refreshToken");
+            return res.status(200).json({
+                message: "You've logged out successfully",
+            });
+        } catch (error) {
+            next(error);
+            return;
+        }
+    }
 }
