@@ -3,14 +3,25 @@ import JwksRsa from "jwks-rsa";
 import type { Request } from "express";
 import { Config } from "../config/index.ts";
 import type { authCookies } from "../types/index.ts";
+import fs from "fs";
+import path from "path";
 
-export const authMiddleware = expressjwt({
-    secret: JwksRsa.expressJwtSecret({
+function getAuthSecret() {
+    if (process.env.NODE_ENV === "test") {
+        const publicKeyPath = path.resolve(process.cwd(), "certs/public.pem");
+        return fs.readFileSync(publicKeyPath, "utf8");
+    }
+
+    return JwksRsa.expressJwtSecret({
         jwksUri: Config.JWKS_URI,
         cache: true,
         rateLimit: true,
         jwksRequestsPerMinute: 5,
-    }),
+    });
+}
+
+export const authMiddleware = expressjwt({
+    secret: getAuthSecret(),
     algorithms: ["RS256"],
     getToken: (req: Request) => {
         if (
