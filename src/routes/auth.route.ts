@@ -45,8 +45,11 @@ router.post(
         authController.login(req, res, next),
 );
 
-router.get("/me", authMiddleware, (req: Request, res: Response) =>
-    authController.me(req as authRequest, res),
+router.get(
+    "/me",
+    authMiddleware,
+    (req: Request, res: Response, next: NextFunction) =>
+        authController.me(req as authRequest, res, next),
 );
 
 router.post(

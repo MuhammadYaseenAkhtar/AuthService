@@ -191,9 +191,14 @@ export class AuthController {
         }
     }
 
-    async me(req: authRequest, res: Response) {
-        const user = await this.userService.findById(Number(req.auth.sub));
-        res.status(200).json(user);
+    async me(req: authRequest, res: Response, next: NextFunction) {
+        try {
+            const user = await this.userService.findById(Number(req.auth.sub));
+            res.status(200).json(user);
+        } catch (error) {
+            next(error);
+            return;
+        }
     }
 
     async refresh(req: authRequest, res: Response, next: NextFunction) {
