@@ -67,4 +67,12 @@ router.post(
         authController.logout(req as authRequest, res, next),
 );
 
+router.post(
+    "/logoutAllDevices",
+    authMiddleware,
+    parseRefreshToken,
+    (req: Request, res: Response, next: NextFunction) =>
+        authController.logoutAllDevices(req as authRequest, res, next),
+);
+
 export default router;

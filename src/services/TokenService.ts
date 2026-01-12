@@ -61,4 +61,16 @@ export class TokenService {
     async deleteOldRefreshToken(id: number) {
         await this.refreshTokenRepo.delete({ id });
     }
+    async deleteAllRefreshTokens(userId: number) {
+        // await this.refreshTokenRepo.delete({ userId: userId });
+        const allDevices = await this.refreshTokenRepo.find({
+            where: { user: { id: userId } },
+        });
+
+        if (allDevices.length === 0) {
+            return;
+        }
+
+        await this.refreshTokenRepo.delete({ user: { id: userId } });
+    }
 }

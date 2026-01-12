@@ -277,4 +277,24 @@ export class AuthController {
             return;
         }
     }
+
+    async logoutAllDevices(
+        req: authRequest,
+        res: Response,
+        next: NextFunction,
+    ) {
+        try {
+            await this.tokenService.deleteAllRefreshTokens(
+                Number(req.auth.sub),
+            );
+            res.clearCookie("accessToken");
+            res.clearCookie("refreshToken");
+            return res.status(200).json({
+                message: "You've logged out from all devices successfully",
+            });
+        } catch (error) {
+            next(error);
+            return;
+        }
+    }
 }
