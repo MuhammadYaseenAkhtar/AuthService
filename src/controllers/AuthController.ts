@@ -93,7 +93,7 @@ export class AuthController {
                 httpOnly: true,
                 sameSite: "strict",
                 domain: "localhost",
-                maxAge: 1000 * 60 * 60 * 24 * 30, //1M
+                maxAge: 1000 * 60 * 60 * 24 * 30 * 365, //1Y
             });
 
             //return response.
@@ -178,7 +178,7 @@ export class AuthController {
                 httpOnly: true,
                 sameSite: "strict",
                 domain: "localhost",
-                maxAge: 1000 * 60 * 60 * 24 * 30, //1M
+                maxAge: 1000 * 60 * 60 * 24 * 30 * 365, //1Y
             });
 
             //return response
@@ -251,7 +251,7 @@ export class AuthController {
                 httpOnly: true,
                 sameSite: "strict",
                 domain: "localhost",
-                maxAge: 1000 * 60 * 60 * 24 * 30, //1M
+                maxAge: 1000 * 60 * 60 * 24 * 30 * 365, //1Y
             });
 
             //return response
