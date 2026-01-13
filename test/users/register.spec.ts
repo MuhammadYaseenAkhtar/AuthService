@@ -484,7 +484,6 @@ describe("POST /auth/register", () => {
             const response = await request(app)
                 .post("/auth/register")
                 .send(user);
-
             //Assert
             expect(response.statusCode).toBe(400);
         });
@@ -502,7 +501,6 @@ describe("POST /auth/register", () => {
             const response = await request(app)
                 .post("/auth/register")
                 .send(user);
-
             //Assert - Should accept but store safely
             const userRepository = connection.getRepository(User);
             const users = await userRepository.find();
@@ -516,41 +514,40 @@ describe("POST /auth/register", () => {
             // Either way, ensure no actual XSS execution
         });
 
-        // it("should return 400 if firstName is only whitespace", async () => {
-        //     //Arrange
-        //     const user = {
-        //         firstName: "   ",
-        //         lastName: "Akhtar",
-        //         email: "test@gmail.com",
-        //         password: "secretPass",
-        //     };
+        it("should return 400 if firstName is only whitespace", async () => {
+            //Arrange
+            const user = {
+                firstName: "   ",
+                lastName: "Akhtar",
+                email: "test@gmail.com",
+                password: "secretPass",
+            };
 
-        //     //Act
-        //     const response = await request(app)
-        //         .post("/auth/register")
-        //         .send(user);
-        //     console.log(response.body);
-        //     //Assert
-        //     expect(response.statusCode).toBe(400);
-        // });
+            //Act
+            const response = await request(app)
+                .post("/auth/register")
+                .send(user);
+            //Assert
+            expect(response.statusCode).toBe(400);
+        });
 
-        // it("should return 400 if lastName is only whitespace", async () => {
-        //     //Arrange
-        //     const user = {
-        //         firstName: "Yasin",
-        //         lastName: "   ",
-        //         email: "test@gmail.com",
-        //         password: "secretPass",
-        //     };
+        it("should return 400 if lastName is only whitespace", async () => {
+            //Arrange
+            const user = {
+                firstName: "Yasin",
+                lastName: "   ",
+                email: "test@gmail.com",
+                password: "secretPass",
+            };
 
-        //     //Act
-        //     const response = await request(app)
-        //         .post("/auth/register")
-        //         .send(user);
+            //Act
+            const response = await request(app)
+                .post("/auth/register")
+                .send(user);
 
-        //     //Assert
-        //     expect(response.statusCode).toBe(400);
-        // });
+            //Assert
+            expect(response.statusCode).toBe(400);
+        });
 
         it("should return 400 if email has spaces in the middle", async () => {
             //Arrange

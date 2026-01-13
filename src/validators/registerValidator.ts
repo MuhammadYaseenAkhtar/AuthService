@@ -2,17 +2,17 @@ import { checkSchema } from "express-validator";
 
 export default checkSchema({
     firstName: {
+        trim: true,
         notEmpty: {
             errorMessage: "First Name is required",
         },
-        trim: true,
     },
 
     lastName: {
+        trim: true,
         notEmpty: {
             errorMessage: "Last Name is required",
         },
-        trim: true,
     },
 
     password: {
@@ -27,11 +27,11 @@ export default checkSchema({
     },
 
     email: {
+        trim: true,
         notEmpty: {
             errorMessage: "Email is required",
             bail: true,
         },
-        trim: true,
         isEmail: {
             errorMessage: "Invalid email format",
         },
