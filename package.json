@@ -29,7 +29,7 @@
         "lint:fix": "eslint . --fix",
         "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --watch --runInBand --verbose",
         "prepare": "husky",
-        "migration:generate": "tsx ./node_modules/typeorm/cli.js migration:generate src/migration/migration -d src/config/data-source.ts",
+        "migration:generate": "tsx ./node_modules/typeorm/cli.js migration:generate -d src/config/data-source.ts",
         "migration:run": "tsx ./node_modules/typeorm/cli.js migration:run -d src/config/data-source.ts"
     },
     "devDependencies": {

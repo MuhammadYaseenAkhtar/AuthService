@@ -4,6 +4,7 @@ import { User } from "../entity/User.ts";
 import { Config } from "./index.ts";
 import { RefreshToken } from "../entity/RefreshToken.ts";
 import { Migration1768093143252 } from "../migration/1768093143252-migration.ts";
+import { RenameTables1768350402389 } from "../migration/1768350402389-renameTables.ts";
 
 export const AppDataSource = new DataSource({
     type: "postgres",
@@ -17,6 +18,6 @@ export const AppDataSource = new DataSource({
     synchronize: false,
     logging: false,
     entities: [User, RefreshToken],
-    migrations: [Migration1768093143252],
+    migrations: [Migration1768093143252, RenameTables1768350402389],
     subscribers: [],
 });
