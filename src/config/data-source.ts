@@ -1,10 +1,6 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import { User } from "../entity/User.ts";
 import { Config } from "./index.ts";
-import { RefreshToken } from "../entity/RefreshToken.ts";
-import { Migration1768093143252 } from "../migration/1768093143252-migration.ts";
-import { RenameTables1768350402389 } from "../migration/1768350402389-renameTables.ts";
 
 export const AppDataSource = new DataSource({
     type: "postgres",
@@ -17,7 +13,7 @@ export const AppDataSource = new DataSource({
     // synchronize: Config.NODE_ENV === "dev" || Config.NODE_ENV === "test",
     synchronize: false,
     logging: false,
-    entities: [User, RefreshToken],
-    migrations: [Migration1768093143252, RenameTables1768350402389],
+    entities: ["src/entity/*.ts"],
+    migrations: ["src/migration/*.ts"],
     subscribers: [],
 });
