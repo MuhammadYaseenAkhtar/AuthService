@@ -7,6 +7,7 @@ import { CreateTenantsTable1768365015279 } from "../migration/1768365015279-crea
 import { User } from "../entity/User.ts";
 import { RefreshToken } from "../entity/RefreshToken.ts";
 import { Tenant } from "../entity/Tenant.ts";
+import { AddTenantIDFKInUserTable1768367107694 } from "../migration/1768367107694-add_TenantID_FK_in_UserTable.ts";
 
 export const AppDataSource = new DataSource({
     type: "postgres",
@@ -29,6 +30,7 @@ export const AppDataSource = new DataSource({
                   Migration1768093143252,
                   RenameTables1768350402389,
                   CreateTenantsTable1768365015279,
+                  AddTenantIDFKInUserTable1768367107694,
               ]
             : ["src/migration/*.ts"],
     subscribers: [],
