@@ -8,6 +8,7 @@ import cookieParser from "cookie-parser";
 import logger from "./config/logger.ts";
 import { HttpError } from "http-errors";
 import authRouter from "./routes/auth.route.ts";
+import tenantRouter from "./routes/tenant.route.ts";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -36,6 +37,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/auth", authRouter);
+app.use("/tenant", tenantRouter);
 
 //global error handler
 
