@@ -1,0 +1,19 @@
+import type { Repository } from "typeorm";
+import type { Tenant } from "../entity/Tenant.ts";
+import type { TenantData } from "../types/index.ts";
+import createHttpError from "http-errors";
+
+export class TenantService {
+    constructor(private tenantRepo: Repository<Tenant>) {}
+    async create(tenantData: TenantData) {
+        try {
+            return await this.tenantRepo.save(tenantData);
+        } catch (err: unknown) {
+            const error = createHttpError(
+                500,
+                `Something went wrong while saving the tenant data in DB; Reason =>  ${(err as Error).message}`,
+            );
+            throw error;
+        }
+    }
+}

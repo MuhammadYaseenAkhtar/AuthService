@@ -37,7 +37,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/auth", authRouter);
-app.use("/tenant", tenantRouter);
+app.use("/tenants", tenantRouter);
 
 //global error handler
 
