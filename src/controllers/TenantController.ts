@@ -1,9 +1,13 @@
 import type { NextFunction, Response } from "express";
 import type { TenantService } from "../services/TenantService.ts";
 import type { CreateTenantRequest } from "../types/index.ts";
+import type { Logger } from "winston";
 
 export class TenantController {
-    constructor(private tenantService: TenantService) {}
+    constructor(
+        private tenantService: TenantService,
+        private logger: Logger,
+    ) {}
     async createTenant(
         req: CreateTenantRequest,
         res: Response,
@@ -15,6 +19,10 @@ export class TenantController {
             const newTenant = await this.tenantService.create({
                 name,
                 address,
+            });
+
+            this.logger.info(`Tenant ${newTenant.name} is created`, {
+                id: newTenant.id,
             });
 
             return res.status(201).json({

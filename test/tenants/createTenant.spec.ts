@@ -27,8 +27,8 @@ describe("POST /tenant", () => {
 
             //Arrange
             const tenantData = {
-                name: ":Tenant Name",
-                address: "Tenant Address",
+                name: "Drop Night Pizza",
+                address: "Village Chopala, District Gujrat",
             };
 
             //Act
@@ -46,8 +46,8 @@ describe("POST /tenant", () => {
 
             //Arrange
             const tenantData = {
-                name: ":Tenant Name",
-                address: "Tenant Address",
+                name: "Drop Night Pizza",
+                address: "Village Chopala, District Gujrat",
             };
 
             //Act

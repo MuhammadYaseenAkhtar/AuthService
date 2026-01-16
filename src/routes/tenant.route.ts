@@ -3,11 +3,12 @@ import { TenantController } from "../controllers/TenantController.ts";
 import { TenantService } from "../services/TenantService.ts";
 import { AppDataSource } from "../config/data-source.ts";
 import { Tenant } from "../entity/Tenant.ts";
+import logger from "../config/logger.ts";
 
 const router = express.Router();
 const tenantRepo = AppDataSource.getRepository(Tenant);
 const tenantService = new TenantService(tenantRepo);
-const tenantController = new TenantController(tenantService);
+const tenantController = new TenantController(tenantService, logger);
 router.post("/", (req, res, next) =>
     tenantController.createTenant(req, res, next),
 );
