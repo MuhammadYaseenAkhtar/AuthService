@@ -13,6 +13,7 @@ describe("POST /tenant", () => {
     let connection: DataSource;
     let privateKey: string;
     let adminToken: string;
+    let managerToken: string;
     beforeAll(async () => {
         connection = await AppDataSource.initialize();
 
@@ -35,6 +36,19 @@ describe("POST /tenant", () => {
             {
                 sub: "1",
                 role: Roles.ADMIN,
+            },
+            privateKey,
+            {
+                algorithm: "RS256",
+                expiresIn: "1h",
+                issuer: "auth-service",
+            },
+        );
+
+        managerToken = jsonwebtoken.sign(
+            {
+                sub: "1",
+                role: Roles.MANAGER,
             },
             privateKey,
             {
@@ -120,6 +134,30 @@ describe("POST /tenant", () => {
 
             //Assert
             expect(response.status).toBe(401);
+            expect(tenants).toHaveLength(0);
+        });
+
+        it("should return 403 status code if the user is not authorized (admin)", async () => {
+            //AAA rule => Arrange, Act, Assert
+
+            //Arrange
+            const tenantData = {
+                name: "Drop Night Pizza",
+                address: "Village Chopala, District Gujrat",
+            };
+
+            //Act
+
+            const response = await request(app)
+                .post("/tenants")
+                .set("Cookie", [`accessToken=${managerToken}`])
+                .send(tenantData);
+
+            const tenantRepo = connection.getRepository(Tenant);
+            const tenants = await tenantRepo.find();
+
+            //Assert
+            expect(response.status).toBe(403);
             expect(tenants).toHaveLength(0);
         });
     });
