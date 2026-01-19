@@ -16,4 +16,16 @@ export class TenantService {
             throw error;
         }
     }
+
+    async listAllTenants() {
+        try {
+            return await this.tenantRepo.find();
+        } catch (err: unknown) {
+            const error = createHttpError(
+                500,
+                `Something went wrong while retrieving the list of tenants from DB; Reason =>  ${(err as Error).message}`,
+            );
+            throw error;
+        }
+    }
 }
