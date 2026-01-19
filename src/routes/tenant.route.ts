@@ -12,6 +12,7 @@ import { authMiddleware } from "../middlewares/auth.middleware.ts";
 import { canAccess } from "../middlewares/canAccess.ts";
 import { Roles } from "../constants/index.ts";
 import tenantValidator from "../validators/tenantValidator.ts";
+import { getTenantByIdValidator } from "../validators/tenantParamValidator.ts";
 
 const router = express.Router();
 const tenantRepo = AppDataSource.getRepository(Tenant);
@@ -33,6 +34,15 @@ router.get(
     canAccess([Roles.ADMIN]),
     (req: Request, res: Response, next: NextFunction) =>
         tenantController.listTenants(req, res, next),
+);
+
+router.get(
+    "/:tenantId",
+    authMiddleware,
+    canAccess([Roles.ADMIN]),
+    getTenantByIdValidator,
+    (req: Request, res: Response, next: NextFunction) =>
+        tenantController.getTenant(req, res, next),
 );
 
 export default router;

@@ -3,6 +3,7 @@ import type { TenantService } from "../services/TenantService.ts";
 import type { CreateTenantRequest } from "../types/index.ts";
 import type { Logger } from "winston";
 import { validationResult } from "express-validator";
+import createHttpError from "http-errors";
 
 export class TenantController {
     constructor(
@@ -51,6 +52,40 @@ export class TenantController {
             this.logger.info(`Tenant list has been retrieved`, allTenants);
 
             return res.status(200).json(allTenants);
+        } catch (error) {
+            next(error);
+            return;
+        }
+    }
+
+    async getTenant(req: Request, res: Response, next: NextFunction) {
+        try {
+            // Handle validation errors
+            const result = validationResult(req);
+            if (!result.isEmpty()) {
+                return res.status(400).json({
+                    errors: result.array(),
+                });
+            }
+
+            const tenantId = Number(req.params.tenantId);
+
+            const tenant = await this.tenantService.findbyId(tenantId);
+
+            if (!tenant) {
+                const error = createHttpError(
+                    404,
+                    `Tenant with ID ${tenantId} is not found.`,
+                );
+                throw error;
+            }
+
+            this.logger.info(
+                `Tenant ${tenant.name} with id ${tenant.id} has been retrieved`,
+                tenant,
+            );
+
+            return res.status(200).json(tenant);
         } catch (error) {
             next(error);
             return;
