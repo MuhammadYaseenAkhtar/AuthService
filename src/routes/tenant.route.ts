@@ -45,4 +45,14 @@ router.get(
         tenantController.getTenant(req, res, next),
 );
 
+router.patch(
+    "/:tenantId",
+    authMiddleware,
+    canAccess([Roles.ADMIN]),
+    getTenantByIdValidator,
+    tenantValidator,
+    (req: Request, res: Response, next: NextFunction) =>
+        tenantController.updateTenant(req, res, next),
+);
+
 export default router;

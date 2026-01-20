@@ -70,7 +70,7 @@ export class TenantController {
 
             const tenantId = Number(req.params.tenantId);
 
-            const tenant = await this.tenantService.findbyId(tenantId);
+            const tenant = await this.tenantService.findById(tenantId);
 
             if (!tenant) {
                 const error = createHttpError(
@@ -86,6 +86,59 @@ export class TenantController {
             );
 
             return res.status(200).json(tenant);
+        } catch (error) {
+            next(error);
+            return;
+        }
+    }
+    async updateTenant(req: Request, res: Response, next: NextFunction) {
+        try {
+            // Handle validation errors
+            const result = validationResult(req);
+            if (!result.isEmpty()) {
+                return res.status(400).json({
+                    errors: result.array(),
+                });
+            }
+
+            const tenantId = Number(req.params.tenantId);
+
+            // Verify tenant exists
+            const existingTenant = await this.tenantService.findById(tenantId);
+            if (!existingTenant) {
+                const error = createHttpError(
+                    404,
+                    `Tenant with ID ${tenantId} is not found.`,
+                );
+                throw error;
+            }
+
+            const { name, address } = req.body as CreateTenantRequest["body"];
+
+            await this.tenantService.update(tenantId, {
+                name,
+                address,
+            });
+
+            // Retrieve the updated tenant from the database
+            const tenant = await this.tenantService.findById(tenantId);
+
+            if (tenant) {
+                this.logger.info(
+                    `Tenant with id ${tenant.id} has been updated successfully`,
+                    tenant,
+                );
+
+                return res.status(200).json({
+                    message: `Tenant with id ${tenant.id} has been updated successfully`,
+                    data: tenant,
+                });
+            } else {
+                // Handle the case when the tenant is not found
+                return res.status(404).json({
+                    message: `Tenant with ID ${tenantId} is not found.`,
+                });
+            }
         } catch (error) {
             next(error);
             return;
