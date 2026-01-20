@@ -55,4 +55,13 @@ router.patch(
         tenantController.updateTenant(req, res, next),
 );
 
+router.delete(
+    "/:tenantId",
+    authMiddleware,
+    canAccess([Roles.ADMIN]),
+    getTenantByIdValidator,
+    (req: Request, res: Response, next: NextFunction) =>
+        tenantController.deleteTenant(req, res, next),
+);
+
 export default router;

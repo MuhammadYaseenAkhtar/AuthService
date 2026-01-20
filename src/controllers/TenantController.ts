@@ -144,4 +144,49 @@ export class TenantController {
             return;
         }
     }
+
+    async deleteTenant(req: Request, res: Response, next: NextFunction) {
+        try {
+            // Handle validation errors
+            const result = validationResult(req);
+            if (!result.isEmpty()) {
+                return res.status(400).json({
+                    errors: result.array(),
+                });
+            }
+
+            const tenantId = Number(req.params.tenantId);
+
+            const tenant = await this.tenantService.findById(tenantId);
+
+            if (!tenant) {
+                const error = createHttpError(
+                    404,
+                    `Tenant with ID ${tenantId} is not found.`,
+                );
+                throw error;
+            }
+
+            const deletedTenant = await this.tenantService.delete(tenantId);
+
+            if (deletedTenant.affected === 0) {
+                const error = createHttpError(
+                    500,
+                    `Failed to delete tenant with ID ${tenantId}.`,
+                );
+                throw error;
+            }
+
+            this.logger.info(
+                `Tenant ${tenant.name} with id ${tenant.id} has been deleted successfully`,
+            );
+
+            return res.status(200).json({
+                message: `Tenant ${tenant.name} with id ${tenant.id} has been deleted successfully`,
+            });
+        } catch (error) {
+            next(error);
+            return;
+        }
+    }
 }

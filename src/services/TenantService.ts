@@ -55,4 +55,16 @@ export class TenantService {
             throw error;
         }
     }
+
+    async delete(tenantId: number) {
+        try {
+            return await this.tenantRepo.delete({ id: tenantId });
+        } catch (err: unknown) {
+            const error = createHttpError(
+                500,
+                `Something went wrong while deleting tenant by ID from DB; Reason =>  ${(err as Error).message}`,
+            );
+            throw error;
+        }
+    }
 }
