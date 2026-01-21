@@ -653,6 +653,39 @@ describe("POST /auth/register", () => {
             expect(users).toHaveLength(1);
         });
 
+        it("should handle multiple concurrent registration requests", async () => {
+            //Arrange
+            const baseUser = {
+                firstName: "Concurrent",
+                lastName: "User",
+                password: "secretPass",
+            };
+
+            const concurrentRequests = 20;
+            const usersPayload = Array.from({ length: concurrentRequests }).map(
+                (_, index) => ({
+                    ...baseUser,
+                    email: `concurrent+${index}@gmail.com`,
+                }),
+            );
+
+            //Act - Send many requests simultaneously
+            const responses = await Promise.all(
+                usersPayload.map((user) =>
+                    request(app).post("/auth/register").send(user),
+                ),
+            );
+
+            //Assert - all should succeed
+            responses.forEach((response) => {
+                expect(response.statusCode).toBe(201);
+            });
+
+            const userRepository = connection.getRepository(User);
+            const createdUsers = await userRepository.find();
+            expect(createdUsers).toHaveLength(concurrentRequests);
+        });
+
         it("should accept password with special characters", async () => {
             //Arrange
             const user = {

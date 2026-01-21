@@ -104,6 +104,42 @@ describe("POST /auth/login", () => {
             // expect(refreshTokenCookie).toMatch(/Secure/); // Ensure HTTPS in production
             expect(isJwt(refreshTokenCookie)).toBeTruthy(); // Check if it's a valid JWT)
         });
+
+        it("should handle multiple concurrent login requests", async () => {
+            //Arrange
+            const user = {
+                email: "concurrent-login@example.com",
+                password: "secretPassword",
+            };
+
+            const hashedPassword = await bcrypt.hash(user.password, 10);
+            const userRepository = connection.getRepository(User);
+            await userRepository.save({
+                ...user,
+                firstName: "Concurrent",
+                lastName: "User",
+                password: hashedPassword,
+                role: Roles.CUSTOMER,
+            });
+
+            const concurrentRequests = 20;
+            const payloads = Array.from(
+                { length: concurrentRequests },
+                () => user,
+            );
+
+            //Act - send many login requests simultaneously
+            const responses = await Promise.all(
+                payloads.map((payload) =>
+                    request(app).post("/auth/login").send(payload),
+                ),
+            );
+
+            //Assert - all should succeed
+            responses.forEach((response) => {
+                expect(response.statusCode).toBe(200);
+            });
+        });
     });
 
     describe("Given invalid request body", () => {
