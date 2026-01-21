@@ -2,12 +2,11 @@ import type { Repository } from "typeorm";
 import { User } from "../entity/User.ts";
 import type { UserData } from "../types/index.ts";
 import createHttpError from "http-errors";
-import { Roles } from "../constants/index.ts";
 import bcrypt from "bcrypt";
 
 export class UserService {
     constructor(private userRepository: Repository<User>) {}
-    async create({ firstName, lastName, email, password }: UserData) {
+    async create({ firstName, lastName, email, password, role }: UserData) {
         try {
             //hash the password
             const saltRounds = 10;
@@ -19,7 +18,7 @@ export class UserService {
                 lastName,
                 email,
                 password: hashedPassword,
-                role: Roles.CUSTOMER,
+                role,
             });
         } catch {
             const error = createHttpError(

@@ -12,6 +12,7 @@ import { validationResult } from "express-validator";
 import type { TokenService } from "../services/TokenService.ts";
 import type { CredentialService } from "../services/CredentialService.ts";
 import type { User } from "../entity/User.ts";
+import { Roles } from "../constants/index.ts";
 
 export class AuthController {
     constructor(
@@ -98,6 +99,7 @@ export class AuthController {
                 lastName,
                 email,
                 password,
+                role: Roles.CUSTOMER,
             });
 
             //logging
