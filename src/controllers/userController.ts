@@ -3,6 +3,7 @@ import type { CreateUserRequest } from "../types/index.ts";
 import type { Logger } from "winston";
 import { validationResult } from "express-validator";
 import type { UserService } from "../services/UserService.ts";
+import createHttpError from "http-errors";
 
 export class UserController {
     constructor(
@@ -59,6 +60,38 @@ export class UserController {
             return res.status(200).json({
                 data: allUsers,
                 message: `Users list has been fetched successfully`,
+            });
+        } catch (error) {
+            next(error);
+            return;
+        }
+    }
+    async getUser(req: Request, res: Response, next: NextFunction) {
+        try {
+            //validate request using express-validator.
+            const result = validationResult(req);
+            if (!result.isEmpty()) {
+                return res.status(400).json({
+                    errors: result.array(),
+                });
+            }
+
+            const userId = Number(req.params.userId);
+
+            const user = await this.userService.findById(userId);
+
+            if (!user) {
+                throw createHttpError(404, "User Not Found");
+            }
+
+            this.logger.info(
+                `User ${user.firstName} with ID ${user.id} has been fetched successfully`,
+                user,
+            );
+
+            return res.status(200).json({
+                data: user,
+                message: `User ${user.firstName} with ID ${user.id} has been fetched successfully`,
             });
         } catch (error) {
             next(error);

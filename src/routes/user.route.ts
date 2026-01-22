@@ -12,6 +12,7 @@ import logger from "../config/logger.ts";
 import { AppDataSource } from "../config/data-source.ts";
 import { User } from "../entity/User.ts";
 import createUserValidator from "../validators/createUserValidator.ts";
+import { getUserByIdValidator } from "../validators/userParamValidator.ts";
 
 const router = express.Router();
 
@@ -34,6 +35,15 @@ router.get(
     canAccess([Roles.ADMIN]),
     (req: Request, res: Response, next: NextFunction) =>
         userController.getAllUsers(req, res, next),
+);
+
+router.get(
+    "/:userId",
+    authMiddleware,
+    canAccess([Roles.ADMIN]),
+    getUserByIdValidator,
+    (req: Request, res: Response, next: NextFunction) =>
+        userController.getUser(req, res, next),
 );
 
 export default router;
