@@ -98,4 +98,45 @@ export class UserController {
             return;
         }
     }
+
+    async deleteUser(req: Request, res: Response, next: NextFunction) {
+        try {
+            //validate request using express-validator.
+            const result = validationResult(req);
+            if (!result.isEmpty()) {
+                return res.status(400).json({
+                    errors: result.array(),
+                });
+            }
+
+            const userId = req.params.userId as unknown as number;
+
+            const user = await this.userService.findById(userId);
+
+            if (!user) {
+                throw createHttpError(404, "User Not Found");
+            }
+
+            const deleteResult = await this.userService.deleteUser(userId);
+
+            if (deleteResult.affected === 0) {
+                const error = createHttpError(
+                    500,
+                    `Failed to delete User with ID ${userId}.`,
+                );
+                throw error;
+            }
+
+            this.logger.info(
+                `User ${user.firstName} with ID ${user.id} has been deleted successfully`,
+            );
+
+            return res.status(200).json({
+                message: `User ${user.firstName} with ID ${user.id} has been deleted successfully`,
+            });
+        } catch (error) {
+            next(error);
+            return;
+        }
+    }
 }

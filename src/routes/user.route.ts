@@ -46,4 +46,13 @@ router.get(
         userController.getUser(req, res, next),
 );
 
+router.delete(
+    "/:userId",
+    authMiddleware,
+    canAccess([Roles.ADMIN]),
+    getUserByIdValidator,
+    (req: Request, res: Response, next: NextFunction) =>
+        userController.deleteUser(req, res, next),
+);
+
 export default router;
