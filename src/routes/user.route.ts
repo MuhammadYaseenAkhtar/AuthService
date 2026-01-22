@@ -28,4 +28,12 @@ router.post(
         userController.createUser(req, res, next),
 );
 
+router.get(
+    "/",
+    authMiddleware,
+    canAccess([Roles.ADMIN]),
+    (req: Request, res: Response, next: NextFunction) =>
+        userController.getAllUsers(req, res, next),
+);
+
 export default router;

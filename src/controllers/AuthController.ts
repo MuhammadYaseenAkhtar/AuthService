@@ -135,7 +135,7 @@ export class AuthController {
             const { email, password } = req.body as LoginRequest;
 
             //check if email is exists in Db
-            const user = await this.userService.checkEmail(email);
+            const user = await this.userService.checkEmail(email, true);
 
             if (!user) {
                 const error = createHttpError(

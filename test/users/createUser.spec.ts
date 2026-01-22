@@ -127,7 +127,7 @@ describe("POST /users", () => {
                 .send(managerData);
 
             const userRepository = connection.getRepository(User);
-            const users = await userRepository.find();
+            const users = await userRepository.find({ select: ["password"] });
 
             expect(users[0].password).not.toBe("password");
             expect(users[0].password).toMatch(/^\$2[ayb]\$.{56}$/);

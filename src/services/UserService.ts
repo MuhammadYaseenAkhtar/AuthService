@@ -29,8 +29,23 @@ export class UserService {
         }
     }
 
-    async checkEmail(email: string) {
+    async checkEmail(email: string, includePassword: boolean = false) {
         try {
+            if (includePassword) {
+                // For login - explicitly select password field
+                return await this.userRepository.findOne({
+                    where: { email },
+                    select: [
+                        "id",
+                        "firstName",
+                        "lastName",
+                        "email",
+                        "password",
+                        "role",
+                    ],
+                });
+            }
+            // For registration check - no password needed
             const user = await this.userRepository.findOneBy({ email: email });
 
             return user;
@@ -55,6 +70,18 @@ export class UserService {
             const error = createHttpError(
                 500,
                 "Something went wrong while finding the user by ID!",
+            );
+            throw error;
+        }
+    }
+
+    async listAllUsers() {
+        try {
+            return await this.userRepository.find();
+        } catch {
+            const error = createHttpError(
+                500,
+                "Something went wrong while fetching the users from DB!",
             );
             throw error;
         }
