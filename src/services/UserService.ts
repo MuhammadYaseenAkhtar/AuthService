@@ -1,6 +1,6 @@
 import type { Repository } from "typeorm";
 import { User } from "../entity/User.ts";
-import type { UserData } from "../types/index.ts";
+import type { updateData, UserData } from "../types/index.ts";
 import createHttpError from "http-errors";
 import bcrypt from "bcrypt";
 
@@ -29,25 +29,25 @@ export class UserService {
         }
     }
 
-    async checkEmail(email: string, includePassword: boolean = false) {
+    async checkEmail(
+        email: string,
+        includePassword: boolean = false,
+        id?: number,
+    ) {
         try {
-            if (includePassword) {
-                // For login - explicitly select password field
-                return await this.userRepository.findOne({
-                    where: { email },
-                    select: [
-                        "id",
-                        "firstName",
-                        "lastName",
-                        "email",
-                        "password",
-                        "role",
-                    ],
-                });
-            }
-            // For registration check - no password needed
-            const user = await this.userRepository.findOneBy({ email: email });
+            const query = this.userRepository.createQueryBuilder("user");
 
+            if (includePassword) {
+                query.addSelect("user.password");
+            }
+
+            query.where("user.email = :email", { email });
+
+            if (id !== undefined) {
+                query.andWhere("user.id != :id", { id });
+            }
+
+            const user = await query.getOne();
             return user;
         } catch {
             const error = createHttpError(
@@ -96,6 +96,18 @@ export class UserService {
             const error = createHttpError(
                 500,
                 "Something went wrong while deleting the user by ID!",
+            );
+            throw error;
+        }
+    }
+
+    async updateUser(id: number, data: updateData) {
+        try {
+            return await this.userRepository.update({ id }, data);
+        } catch {
+            const error = createHttpError(
+                500,
+                "Something went wrong while updating the user by ID!",
             );
             throw error;
         }

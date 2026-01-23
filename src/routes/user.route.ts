@@ -13,6 +13,7 @@ import { AppDataSource } from "../config/data-source.ts";
 import { User } from "../entity/User.ts";
 import createUserValidator from "../validators/createUserValidator.ts";
 import { getUserByIdValidator } from "../validators/userParamValidator.ts";
+import updateUserValidator from "../validators/updateUserValidator.ts";
 
 const router = express.Router();
 
@@ -53,6 +54,16 @@ router.delete(
     getUserByIdValidator,
     (req: Request, res: Response, next: NextFunction) =>
         userController.deleteUser(req, res, next),
+);
+
+router.patch(
+    "/:userId",
+    authMiddleware,
+    canAccess([Roles.ADMIN]),
+    getUserByIdValidator,
+    updateUserValidator,
+    (req: Request, res: Response, next: NextFunction) =>
+        userController.updateUser(req, res, next),
 );
 
 export default router;

@@ -1,5 +1,9 @@
 import type { Request, NextFunction, Response } from "express";
-import type { CreateUserRequest } from "../types/index.ts";
+import type {
+    CreateUserRequest,
+    UpdateUserData,
+    UpdateUserRequest,
+} from "../types/index.ts";
 import type { Logger } from "winston";
 import { validationResult } from "express-validator";
 import type { UserService } from "../services/UserService.ts";
@@ -133,6 +137,81 @@ export class UserController {
 
             return res.status(200).json({
                 message: `User ${user.firstName} with ID ${user.id} has been deleted successfully`,
+            });
+        } catch (error) {
+            next(error);
+            return;
+        }
+    }
+
+    async updateUser(
+        req: UpdateUserRequest,
+        res: Response,
+        next: NextFunction,
+    ) {
+        try {
+            // validate request using express-validator.
+            const result = validationResult(req);
+            if (!result.isEmpty()) {
+                return res.status(400).json({
+                    errors: result.array(),
+                });
+            }
+
+            const userId = Number(req.params.userId);
+            const data: UpdateUserData = req.body;
+
+            if (Object.keys(data).length === 0) {
+                throw createHttpError(
+                    400,
+                    "At least one field is required to update a user",
+                );
+            }
+
+            const user = await this.userService.findById(userId);
+            if (!user) {
+                throw createHttpError(404, "User Not Found");
+            }
+
+            if (data.email) {
+                const emailExists = await this.userService.checkEmail(
+                    data.email,
+                    false,
+                    userId,
+                );
+                if (emailExists) {
+                    throw createHttpError(400, "Email already exists");
+                }
+            }
+
+            const updateResult = await this.userService.updateUser(
+                userId,
+                data,
+            );
+
+            if (updateResult.affected === 0) {
+                throw createHttpError(
+                    500,
+                    `Failed to update user with ID ${userId}.`,
+                );
+            }
+
+            const updatedUser = await this.userService.findById(userId);
+            if (!updatedUser) {
+                throw createHttpError(
+                    500,
+                    `User updated but could not be reloaded (id=${userId}).`,
+                );
+            }
+
+            this.logger.info(
+                `User ${updatedUser.firstName} with ID ${updatedUser.id} has been updated successfully`,
+                updatedUser,
+            );
+
+            return res.status(200).json({
+                data: updatedUser,
+                message: `User ${updatedUser.firstName} with ID ${updatedUser.id} has been updated successfully`,
             });
         } catch (error) {
             next(error);

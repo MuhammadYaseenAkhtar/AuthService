@@ -46,3 +46,17 @@ export interface CreateTenantRequest extends Request {
 export interface CreateUserRequest extends Request {
     body: UserData;
 }
+
+export interface UpdateUserData {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    role?: string;
+}
+
+// Backwards-compatible alias (existing code uses `updateData`)
+export type updateData = UpdateUserData;
+
+export interface UpdateUserRequest extends Request {
+    body: UpdateUserData;
+}
