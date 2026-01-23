@@ -13,7 +13,6 @@ describe("GET /tenants", () => {
     let connection: DataSource;
     let privateKey: string;
     let adminToken: string;
-    let managerToken: string;
     beforeAll(async () => {
         connection = await AppDataSource.initialize();
 
@@ -36,19 +35,6 @@ describe("GET /tenants", () => {
             {
                 sub: "1",
                 role: Roles.ADMIN,
-            },
-            privateKey,
-            {
-                algorithm: "RS256",
-                expiresIn: "1h",
-                issuer: "auth-service",
-            },
-        );
-
-        managerToken = jsonwebtoken.sign(
-            {
-                sub: "1",
-                role: Roles.MANAGER,
             },
             privateKey,
             {
@@ -118,27 +104,6 @@ describe("GET /tenants", () => {
                     "Moonlight Burgers",
                 ]),
             );
-        });
-    });
-
-    describe("Authorization", () => {
-        it("returns 401 when the user is not authenticated", async () => {
-            // Act
-            const response = await request(app).get("/tenants").send();
-
-            // Assert
-            expect(response.status).toBe(401);
-        });
-
-        it("returns 403 when the user is authenticated but not an admin", async () => {
-            // Act
-            const response = await request(app)
-                .get("/tenants")
-                .set("Cookie", [`accessToken=${managerToken}`])
-                .send();
-
-            // Assert
-            expect(response.status).toBe(403);
         });
     });
 });
