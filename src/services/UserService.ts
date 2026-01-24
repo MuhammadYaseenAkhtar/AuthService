@@ -49,10 +49,10 @@ export class UserService {
 
             const user = await query.getOne();
             return user;
-        } catch {
+        } catch (err) {
             const error = createHttpError(
                 500,
-                "Something went wrong while checking the email!",
+                `Something went wrong while checking the email! Reason =>  ${(err as Error).message}`,
             );
             throw error;
         }

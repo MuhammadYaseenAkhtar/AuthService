@@ -20,10 +20,7 @@ export const AppDataSource = new DataSource({
     // synchronize: Config.NODE_ENV === "dev" || Config.NODE_ENV === "test",
     synchronize: false,
     logging: false,
-    entities:
-        Config.NODE_ENV === "test"
-            ? [User, RefreshToken, Tenant]
-            : ["src/entity/*.ts"],
+    entities: [User, RefreshToken, Tenant],
     migrations:
         Config.NODE_ENV === "test"
             ? [
@@ -32,6 +29,6 @@ export const AppDataSource = new DataSource({
                   CreateTenantsTable1768365015279,
                   AddTenantIDFKInUserTable1768367107694,
               ]
-            : ["src/migration/*.ts"],
+            : ["src/migration/*.{ts,js}"],
     subscribers: [],
 });
