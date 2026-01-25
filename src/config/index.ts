@@ -14,6 +14,7 @@ export const Config = {
     DB_NAME: requiredEnv("DB_NAME"),
     REFRESH_TOKEN_SECRET: requiredEnv("REFRESH_TOKEN_SECRET"),
     JWKS_URI: requiredEnv("JWKS_URI"),
+    PRIVATE_KEY: requiredEnv("PRIVATE_KEY"),
 };
 
 function requiredEnv(name: string): string {

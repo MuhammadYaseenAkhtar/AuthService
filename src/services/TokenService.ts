@@ -1,5 +1,3 @@
-import fs from "fs";
-import path from "path";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import createHttpError from "http-errors";
 import { Config } from "../config/index.ts";
@@ -13,14 +11,13 @@ export class TokenService {
         //private key for accessToken
         let privateKey: string;
         try {
-            privateKey = fs.readFileSync(
-                path.resolve(process.cwd(), "certs/private.pem"),
+            privateKey = Buffer.from(Config.PRIVATE_KEY, "base64").toString(
                 "utf8",
             );
         } catch (err) {
             throw createHttpError(
                 500,
-                "Private key is not configured correctly",
+                `Private key is not configured correctly`,
                 { cause: err },
             );
         }
