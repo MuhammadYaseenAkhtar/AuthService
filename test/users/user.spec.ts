@@ -6,8 +6,6 @@ import { AppDataSource } from "../../src/config/data-source.js";
 import { User } from "../../src/entity/User.js";
 import { Roles } from "../../src/constants/index.js";
 import jsonwebtoken from "jsonwebtoken";
-import fs from "fs";
-import path from "path";
 import createHttpError from "http-errors";
 
 describe("GET /auth/me", () => {
@@ -19,10 +17,12 @@ describe("GET /auth/me", () => {
 
         // Load private key from certs folder
         try {
-            privateKey = fs.readFileSync(
-                path.resolve(process.cwd(), "certs/private.pem"),
-                "utf8",
-            );
+            const encoded = process.env.PRIVATE_KEY;
+            if (!encoded) {
+                throw new Error("Env PRIVATE_KEY is not set");
+            }
+
+            privateKey = Buffer.from(encoded, "base64").toString("utf8");
         } catch (err) {
             throw createHttpError(
                 500,

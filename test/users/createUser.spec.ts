@@ -1,9 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import path from "path";
-import fs from "fs";
+
 import { DataSource } from "typeorm";
 import app from "../../src/app";
 import request from "supertest";
@@ -23,10 +22,12 @@ describe("POST /users", () => {
         connection = await AppDataSource.initialize();
 
         try {
-            privateKey = fs.readFileSync(
-                path.resolve(process.cwd(), "certs/private.pem"),
-                "utf8",
-            );
+            const encoded = process.env.PRIVATE_KEY;
+            if (!encoded) {
+                throw new Error("Env PRIVATE_KEY is not set");
+            }
+
+            privateKey = Buffer.from(encoded, "base64").toString("utf8");
         } catch (err) {
             throw createHttpError(
                 500,
@@ -85,7 +86,7 @@ describe("POST /users", () => {
                 .post("/users")
                 .set("Cookie", `accessToken=${adminToken}`)
                 .send(managerData);
-
+            console.log(response.body);
             expect(response.statusCode).toBe(201);
             expect(response.body).toHaveProperty("id");
             expect(response.body).toHaveProperty("message");

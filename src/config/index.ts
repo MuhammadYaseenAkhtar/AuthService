@@ -15,6 +15,7 @@ export const Config = {
     REFRESH_TOKEN_SECRET: requiredEnv("REFRESH_TOKEN_SECRET"),
     JWKS_URI: requiredEnv("JWKS_URI"),
     PRIVATE_KEY: requiredEnv("PRIVATE_KEY"),
+    PUBLIC_KEY: requiredEnv("PUBLIC_KEY"),
 };
 
 function requiredEnv(name: string): string {

@@ -1,5 +1,3 @@
-import path from "path";
-import fs from "fs";
 import { DataSource } from "typeorm";
 import app from "../../src/app.ts";
 import request from "supertest";
@@ -18,10 +16,12 @@ describe("GET /tenants", () => {
 
         // Load private key from certs folder
         try {
-            privateKey = fs.readFileSync(
-                path.resolve(process.cwd(), "certs/private.pem"),
-                "utf8",
-            );
+            const encoded = process.env.PRIVATE_KEY;
+            if (!encoded) {
+                throw new Error("Env PRIVATE_KEY is not set");
+            }
+
+            privateKey = Buffer.from(encoded, "base64").toString("utf8");
         } catch (err) {
             throw createHttpError(
                 500,

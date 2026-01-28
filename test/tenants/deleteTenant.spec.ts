@@ -6,8 +6,6 @@ import { Tenant } from "../../src/entity/Tenant.ts";
 import { User } from "../../src/entity/User.ts";
 import { Roles } from "../../src/constants/index.ts";
 import { DataSource } from "typeorm";
-import path from "path";
-import fs from "fs";
 import createHttpError from "http-errors";
 import jsonwebtoken from "jsonwebtoken";
 
@@ -22,10 +20,12 @@ describe("DELETE /tenants/:tenantId", () => {
         // Load private key from certs folder
         let privateKey: string;
         try {
-            privateKey = fs.readFileSync(
-                path.resolve(process.cwd(), "certs/private.pem"),
-                "utf8",
-            );
+            const encoded = process.env.PRIVATE_KEY;
+            if (!encoded) {
+                throw new Error("Env PRIVATE_KEY is not set");
+            }
+
+            privateKey = Buffer.from(encoded, "base64").toString("utf8");
         } catch (err) {
             throw createHttpError(
                 500,

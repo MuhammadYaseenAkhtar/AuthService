@@ -3,15 +3,16 @@ import JwksRsa from "jwks-rsa";
 import type { Request } from "express";
 import { Config } from "../config/index.ts";
 import type { authCookies } from "../types/index.ts";
-import fs from "fs";
-import path from "path";
 
 function getAuthSecret() {
     if (process.env.NODE_ENV === "test") {
-        const publicKeyPath = path.resolve(process.cwd(), "certs/public.pem");
-        return fs.readFileSync(publicKeyPath, "utf8");
+        // Static public key for CI/tests (RS256)
+        // Config.PUBLIC_KEY is base64-encoded, decode it to PEM string
+        const key = Buffer.from(Config.PUBLIC_KEY, "base64").toString("utf8");
+        return key;
     }
 
+    // Non-test: dynamic JWKS secret
     return JwksRsa.expressJwtSecret({
         jwksUri: Config.JWKS_URI,
         cache: true,

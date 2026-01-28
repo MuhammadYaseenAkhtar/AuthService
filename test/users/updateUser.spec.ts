@@ -2,8 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import path from "path";
-import fs from "fs";
+
 import { DataSource } from "typeorm";
 import app from "../../src/app";
 import request from "supertest";
@@ -23,10 +22,12 @@ describe("PATCH /users/:userId", () => {
         connection = await AppDataSource.initialize();
 
         try {
-            privateKey = fs.readFileSync(
-                path.resolve(process.cwd(), "certs/private.pem"),
-                "utf8",
-            );
+            const encoded = process.env.PRIVATE_KEY;
+            if (!encoded) {
+                throw new Error("Env PRIVATE_KEY is not set");
+            }
+
+            privateKey = Buffer.from(encoded, "base64").toString("utf8");
         } catch (err) {
             throw createHttpError(
                 500,
