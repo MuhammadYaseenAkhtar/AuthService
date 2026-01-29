@@ -58,6 +58,10 @@ jobs:
                   DB_USERNAME: testuser
                   DB_PASSWORD: testpass
                   DB_NAME: auth_db_test
+                  REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET }}
+                  PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+                  PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
+                  JWKS_URI: http://localhost:1717/.well-known/jwks.json
 
             # 5️⃣ Run tests with coverage
             - name: Run Tests & Coverage
