@@ -1,0 +1,99 @@
+name: CI
+
+on:
+    pull_request:
+        branches:
+            - main
+    push:
+        branches:
+            - main
+
+jobs:
+    build-and-test:
+        name: Build, Lint & Test
+        runs-on: ubuntu-latest
+
+        # Ephemeral Postgres service for CI
+        services:
+            postgres:
+                image: postgres:15
+                env:
+                    POSTGRES_USER: testuser
+                    POSTGRES_PASSWORD: testpass
+                    POSTGRES_DB: auth_db_test
+                ports:
+                    - 5432:5432
+                options: >-
+                    --health-cmd "pg_isready -U testuser"
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
+
+        steps:
+            # 1️⃣ Checkout repository
+            - uses: actions/checkout@v3
+
+            # 2️⃣ Setup Node.js
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: 24
+                  cache: npm
+
+            # 3️⃣ Install dependencies
+            - name: Install dependencies
+              run: npm ci
+
+            # 4️⃣ Run ESLint
+            - name: Run ESLint
+              run: npm run lint:check
+
+            # 5️⃣ Run tests with coverage
+            - name: Run Tests & Coverage
+              run: npm run test:ci
+              env:
+                  NODE_ENV: test
+                  PORT: 1717
+                  DB_HOST: localhost
+                  DB_PORT: 5432
+                  DB_USERNAME: testuser
+                  DB_PASSWORD: testpass
+                  DB_NAME: auth_db_test
+                  REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET }}
+                  PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+                  PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
+                  JWKS_URI: http://localhost:1717/.well-known/jwks.json # dummy value for CI/tests
+
+            # 6️⃣ Build TypeScript
+            - name: Build TypeScript
+              run: npm run build
+
+            # 7️⃣ SonarCloud analysis
+            - name: SonarCloud Scan
+              uses: sonarsource/sonarcloud-github-action@v2
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    build-and-push-docker:
+        name: Build & Push Docker Image
+        needs: build-and-test
+        runs-on: ubuntu-latest
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+            IMAGE_NAME: yaseen/authService
+            IMAGE_TAG: build-${{ github.run_number }}
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+
+            - name: Log in to Docker Hub
+              uses: docker/login-action@v1
+              with:
+                  username: ${{ secrets.DOCKERHUB_USERNAME }}
+                  password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+            - name: Build Docker image
+              run: docker build -t ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} -f docker/prod/Dockerfile .
+
+            - name: Push Docker image to Docker Hub
+              run: docker push ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}

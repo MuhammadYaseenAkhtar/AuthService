@@ -31,6 +31,7 @@
         "lint:fix": "eslint . --fix",
         "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --watch --runInBand --verbose",
         "test:coverage": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --no-cache --coverage --all --runInBand",
+        "test:ci": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --no-cache --coverage --all --runInBand --verbose",
         "prepare": "husky",
         "migration:generate": "tsx ./node_modules/typeorm/cli.js migration:generate -d src/config/data-source.ts",
         "migration:run": "tsx ./node_modules/typeorm/cli.js migration:run -d src/config/data-source.ts"
