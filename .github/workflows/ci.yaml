@@ -47,9 +47,16 @@ jobs:
             - name: Run ESLint
               run: npm run lint:check
 
-            # 4️⃣ Run ESLint
+            # 4️⃣ Run Migrations
             - name: Run migrations
               run: npm run migration:run
+              env:
+                  NODE_ENV: test
+                  DB_HOST: localhost
+                  DB_PORT: 5432
+                  DB_USERNAME: testuser
+                  DB_PASSWORD: testpass
+                  DB_NAME: auth_db_test
 
             # 5️⃣ Run tests with coverage
             - name: Run Tests & Coverage
