@@ -98,7 +98,7 @@ jobs:
         runs-on: ubuntu-latest
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         env:
-            IMAGE_NAME: yaseen/auth_service
+            IMAGE_NAME: yaseen017/auth_service
             IMAGE_TAG: build-${{ github.run_number }}
         steps:
             - name: Checkout repository
