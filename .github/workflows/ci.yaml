@@ -47,6 +47,10 @@ jobs:
             - name: Run ESLint
               run: npm run lint:check
 
+            # 4️⃣ Run ESLint
+            - name: Run migrations
+              run: npm run migration:run
+
             # 5️⃣ Run tests with coverage
             - name: Run Tests & Coverage
               run: npm run test:ci
