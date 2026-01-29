@@ -52,6 +52,7 @@ jobs:
               run: npm run migration:run
               env:
                   NODE_ENV: test
+                  PORT: 1717
                   DB_HOST: localhost
                   DB_PORT: 5432
                   DB_USERNAME: testuser
