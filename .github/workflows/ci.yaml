@@ -31,9 +31,10 @@ jobs:
 
         steps:
             # 1️⃣ Checkout repository
-            - uses: actions/checkout@v3
-            with:
-              fetch-depth: 0
+            - name: Checkout repository (full history)
+              uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0
             # 2️⃣ Setup Node.js
             - uses: actions/setup-node@v3
               with:
