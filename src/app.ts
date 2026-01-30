@@ -10,8 +10,8 @@ import { HttpError } from "http-errors";
 import authRouter from "./routes/auth.route.ts";
 import tenantRouter from "./routes/tenant.route.ts";
 import userRouter from "./routes/user.route.ts";
-import path from "path";
-import { fileURLToPath } from "url";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 // ✅ Recreate __dirname for ES Modules
 const __filename = fileURLToPath(import.meta.url);

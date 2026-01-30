@@ -6,7 +6,7 @@ import type { User } from "../entity/User.ts";
 import type { Repository } from "typeorm";
 
 export class TokenService {
-    constructor(private refreshTokenRepo: Repository<RefreshToken>) {}
+    constructor(private readonly refreshTokenRepo: Repository<RefreshToken>) {}
     generateAccessToken(payload: JwtPayload) {
         //private key for accessToken
         let privateKey: string;
@@ -46,7 +46,6 @@ export class TokenService {
         //persist the refresh token in DB
         const milliSecondsInYear = 1000 * 60 * 60 * 24 * 365; //1 Year
 
-        // const refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
         const newRefreshToken = await this.refreshTokenRepo.save({
             user: user,
             expiresAt: new Date(Date.now() + milliSecondsInYear),
@@ -59,7 +58,6 @@ export class TokenService {
         await this.refreshTokenRepo.delete({ id });
     }
     async deleteAllRefreshTokens(userId: number) {
-        // await this.refreshTokenRepo.delete({ userId: userId });
         const allDevices = await this.refreshTokenRepo.find({
             where: { user: { id: userId } },
         });

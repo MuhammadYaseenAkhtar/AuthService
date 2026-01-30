@@ -4,7 +4,7 @@ import type { TenantData } from "../types/index.ts";
 import createHttpError from "http-errors";
 
 export class TenantService {
-    constructor(private tenantRepo: Repository<Tenant>) {}
+    constructor(private readonly tenantRepo: Repository<Tenant>) {}
     async create(tenantData: TenantData) {
         try {
             return await this.tenantRepo.save(tenantData);

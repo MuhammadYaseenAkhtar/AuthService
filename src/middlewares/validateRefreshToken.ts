@@ -16,7 +16,6 @@ export default expressjwt({
         }
     },
     isRevoked: async (_req, token) => {
-        // console.log("Token in middleware", token);
         try {
             const refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
             const refreshToken = await refreshTokenRepo.findOne({
@@ -25,7 +24,6 @@ export default expressjwt({
                     user: { id: Number(token?.payload.sub) },
                 },
             });
-            // console.log("refresToken", refreshToken);
             return refreshToken === null;
         } catch {
             logger.error("Error while getting the refresh token");
