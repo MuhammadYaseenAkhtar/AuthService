@@ -18,5 +18,3 @@ export const getTenantByIdValidator = checkSchema({
         toInt: true,
     },
 });
-
-// export default [body("email").notEmpty().withMessage("Email is required!")];
