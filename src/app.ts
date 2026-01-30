@@ -12,12 +12,16 @@ import tenantRouter from "./routes/tenant.route.ts";
 import userRouter from "./routes/user.route.ts";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import helmet from "helmet";
 
 // ✅ Recreate __dirname for ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
+// Apply Helmet (all default protections)
+app.use(helmet());
 
 // Serve .well-known directory for OIDC/OAuth standards
 app.use(
