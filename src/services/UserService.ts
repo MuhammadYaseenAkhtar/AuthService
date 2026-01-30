@@ -5,7 +5,7 @@ import createHttpError from "http-errors";
 import bcrypt from "bcrypt";
 
 export class UserService {
-    constructor(private userRepository: Repository<User>) {}
+    constructor(private readonly userRepository: Repository<User>) {}
     async create({ firstName, lastName, email, password, role }: UserData) {
         try {
             //hash the password

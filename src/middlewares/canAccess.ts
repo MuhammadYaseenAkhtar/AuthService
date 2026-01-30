@@ -7,7 +7,7 @@ export const canAccess = (roles: string[]) => {
         const { auth } = req as authRequest;
 
         // If auth is missing or role is not allowed, treat it as forbidden
-        if (!auth || !auth.role || !roles.includes(auth.role)) {
+        if (!auth || !auth?.role || !roles.includes(auth.role)) {
             const error = createHttpError(
                 403,
                 "You don't have enough permissions to perform this action",
