@@ -14,6 +14,7 @@ export const Config = {
     JWKS_URI: requiredEnv("JWKS_URI"),
     PRIVATE_KEY: requiredEnv("PRIVATE_KEY"),
     PUBLIC_KEY: requiredEnv("PUBLIC_KEY"),
+    ADMIN_PASSWORD: requiredEnv("ADMIN_PASSWORD"),
 };
 
 function requiredEnv(name: string): string {

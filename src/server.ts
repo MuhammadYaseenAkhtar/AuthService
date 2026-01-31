@@ -31,7 +31,7 @@ const startServer = async () => {
                 firstName: "Super Admin",
                 lastName: "Super Admin",
                 email: "admin@admin.com",
-                password: "AdminPassword",
+                password: Config.ADMIN_PASSWORD,
                 role: Roles.ADMIN,
             });
 
