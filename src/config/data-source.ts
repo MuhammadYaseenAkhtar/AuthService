@@ -31,4 +31,5 @@ export const AppDataSource = new DataSource({
               ]
             : ["src/migration/*.{ts,js}"],
     subscribers: [],
+    migrationsRun: true,
 });
